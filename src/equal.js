@@ -1,7 +1,21 @@
 'use strict';
 // slightly modified version of https://github.com/epoberezkin/fast-deep-equal/
 
+class Any {
+  constructor(type) {
+    this.type = type;
+  }
+  matches(value) {
+    return typeof value === this.type;
+  }
+}
+
+export const any = (type) => new Any(type);
+
 export function equal(a, b) {
+  if (a instanceof Any) return a.matches(b);
+  if (b instanceof Any) return b.matches(a);
+
   if (a === b) return true;
 
   if (a && b && typeof a == 'object' && typeof b == 'object') {
@@ -47,19 +61,17 @@ export function equal(a, b) {
     keys = Object.keys(a);
     length = keys.length;
     if (length !== Object.keys(b).length) return false;
-
-    for (i = length; i-- !== 0;)
+    for (i = 0; i < length; i++) {
       if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
-
-    for (i = length; i-- !== 0;) {
-      var key = keys[i];
-      if (key === '_owner' && a.$$typeof) {
-        // React-specific: avoid traversing React elements' _owner.
-        //  _owner contains circular references
-        // and is not needed when comparing the actual elements (and not their owners)
-        continue;
+      const aVal = a[keys[i]];
+      const bVal = b[keys[i]];
+      if (aVal instanceof Any) {
+        if (!aVal.matches(bVal)) return false;
+      } else if (bVal instanceof Any) {
+        if (!bVal.matches(aVal)) return false;
+      } else if (!equal(aVal, bVal)) {
+        return false;
       }
-      if (!equal(a[key], b[key])) return false;
     }
 
     return true;
