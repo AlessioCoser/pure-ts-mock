@@ -1,4 +1,3 @@
-
 type Fn = (...args: any[]) => any
 
 type Methods<T> = {
@@ -41,29 +40,32 @@ type Verify<T extends object> = {
 
 export const verify = <T extends object>(mock: Mock<T>) => {
   const internalMock = mock as InternalMock<T>
-  return new Proxy({}, {
-    get(_, prop: string) {
-      const method = prop as unknown as Methods<T>
-      return {
-        toHaveBeenCalled: (times: number = 1) => {
-          const numberOfCalls = internalMock.__calls[method]?.length || 0
-          if (numberOfCalls !== times) {
-            throw new Error(
-              `Expected method ${String(method)} to be called ${times} times, but was called ${numberOfCalls} times.`
-            )
-          }
-        },
-        toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
-          const methodCalls = internalMock.__calls[method] || []
-          if (!methodCalls.some(call => JSON.stringify(call) === JSON.stringify(args))) {
-            throw new Error(
-              `Expected method ${String(method)} to be called with [${args}], but it was not called with those arguments.\n\nCalls: ${JSON.stringify(methodCalls, null, 2)}`
-            )
-          }
-        },
-      } as Verify<Extract<T[Methods<T>], Fn>>
-    },
-  }) as Verify<T>
+  return new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        const method = prop as unknown as Methods<T>
+        return {
+          toHaveBeenCalled: (times: number = 1) => {
+            const numberOfCalls = internalMock.__calls[method]?.length || 0
+            if (numberOfCalls !== times) {
+              throw new Error(
+                `Expected method ${String(method)} to be called ${times} times, but was called ${numberOfCalls} times.`
+              )
+            }
+          },
+          toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
+            const methodCalls = internalMock.__calls[method] || []
+            if (!methodCalls.some(call => JSON.stringify(call) === JSON.stringify(args))) {
+              throw new Error(
+                `Expected method ${String(method)} to be called with [${args}], but it was not called with those arguments.\n\nCalls: ${JSON.stringify(methodCalls, null, 2)}`
+              )
+            }
+          },
+        } as Verify<Extract<T[Methods<T>], Fn>>
+      },
+    }
+  ) as Verify<T>
 }
 
 export type WhenFn<T extends Fn> = {
@@ -77,32 +79,38 @@ type When<T extends object> = {
 
 export const when = <T extends object>(mock: Mock<T>) => {
   const internalMock = mock as InternalMock<T>
-  return new Proxy({}, {
-    get(_, prop: string) {
-      const method = prop as unknown as Methods<T>
-      return (...args: any[]) => {
-        return {
-          willReturn: (returnValue: any) => {
-            if (!internalMock.__mockedReturns[method]) {
-              internalMock.__mockedReturns[method] = []
-            }
-            internalMock.__mockedReturns[method].push({ args: args as Parameters<Extract<T[Methods<T>], Fn>>, returnValue });
+  return new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        const method = prop as unknown as Methods<T>
+        return (...args: any[]) => {
+          return {
+            willReturn: (returnValue: any) => {
+              if (!internalMock.__mockedReturns[method]) {
+                internalMock.__mockedReturns[method] = []
+              }
+              internalMock.__mockedReturns[method].push({
+                args: args as Parameters<Extract<T[Methods<T>], Fn>>,
+                returnValue,
+              })
 
-            (internalMock as T)[method as keyof T] = ((...callArgs: any[]) => {
-              if (!internalMock.__calls[method]) {
-                internalMock.__calls[method] = []
-              }
-              internalMock.__calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
-              const returns = internalMock.__mockedReturns[method] || []
-              const matchingReturn = returns.find(r => JSON.stringify(r.args) === JSON.stringify(callArgs)) ?? {
-                returnValue: undefined,
-              }
-              return matchingReturn.returnValue
-              // TODO: throw when no matching found with strict mocking
-            }) as T[keyof T]
-          },
+              ;(internalMock as T)[method as keyof T] = ((...callArgs: any[]) => {
+                if (!internalMock.__calls[method]) {
+                  internalMock.__calls[method] = []
+                }
+                internalMock.__calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
+                const returns = internalMock.__mockedReturns[method] || []
+                const matchingReturn = returns.find(r => JSON.stringify(r.args) === JSON.stringify(callArgs))
+                if (!matchingReturn) {
+                  throw new Error(`method <${String(method)}> has no matching returnValue`)
+                }
+                return matchingReturn.returnValue
+              }) as T[keyof T]
+            },
+          }
         }
-      }
-    },
-  }) as When<T>
+      },
+    }
+  ) as When<T>
 }

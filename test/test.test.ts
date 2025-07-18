@@ -36,5 +36,6 @@ describe('test', () => {
     verify(mockedRepo).findById.toHaveBeenCalled(2)
     verify(mockedRepo).findById.toHaveBeenCalledWith('123')
     verify(mockedRepo).findById.toHaveBeenCalledWith('456')
+    expect(() => mockedRepo.findById('678')).toThrowError('method <findById> has no matching returnValue')
   })
 })
