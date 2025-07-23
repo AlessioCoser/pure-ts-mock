@@ -1,3 +1,5 @@
+import { equal } from './equal.js'
+
 type Fn = (...args: any[]) => any
 
 type Methods<T> = {
@@ -56,7 +58,7 @@ export const verify = <T extends object>(mock: Mock<T>) => {
           },
           toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
             const methodCalls = internalMock.__calls[method] || []
-            if (!methodCalls.some(call => JSON.stringify(call) === JSON.stringify(args))) {
+            if (!methodCalls.some(call => equal(call, args))) {
               throw new Error(
                 `Expected method ${String(method)} to be called with [${args}], but it was not called with those arguments.\n\nCalls: ${JSON.stringify(methodCalls, null, 2)}`
               )
@@ -101,7 +103,7 @@ export const when = <T extends object>(mock: Mock<T>) => {
                 }
                 internalMock.__calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
                 const returns = internalMock.__mockedReturns[method] || []
-                const matchingReturn = returns.find(r => JSON.stringify(r.args) === JSON.stringify(callArgs))
+                const matchingReturn = returns.find(r => equal(r.args, callArgs))
                 if (!matchingReturn) {
                   throw new Error(`method <${String(method)}> has no matching returnValue`)
                 }

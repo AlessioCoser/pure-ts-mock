@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mock, when, verify, type Mock } from '../src/mock.js'
-import type { Expect, SameShape, SameType } from './test-types.js'
+import { mock, verify, when } from '../src/mock.js'
 
 interface ModelRepository {
   property: string
@@ -15,20 +14,18 @@ interface Model {
 
 describe('test', () => {
   it('xxx', async () => {
-    const realrepo: ModelRepository = {} as ModelRepository
     const mockedRepo = mock<ModelRepository>()
 
+    mockedRepo.property = 'a-property-value'
     when(mockedRepo).findById('123').willReturn(Promise.resolve({ id: '123', externalModelId: 'ext-123' }))
     when(mockedRepo).all().willReturn(Promise.resolve([]))
     when(mockedRepo).findById('456').willReturn(Promise.resolve({ id: '456', externalModelId: 'ext-456' }))
-
-    console.log('2', mockedRepo)
 
     const t = await mockedRepo.findById('123')
     const a = await mockedRepo.all()
     const t2 = await mockedRepo.findById('456')
 
-    expect(mockedRepo.property).toBeUndefined()
+    expect(mockedRepo.property).toEqual('a-property-value')
     expect(a).toEqual([])
     expect(t).toEqual({ id: '123', externalModelId: 'ext-123' })
     expect(t2).toEqual({ id: '456', externalModelId: 'ext-456' })
