@@ -96,7 +96,7 @@ export function mock<T extends object>(
         const results = internal.__mockedMethods[method] || []
         const matchingResult = results.find(r => equal(r.args, callArgs))
         if (!matchingResult) {
-          throw `method <${String(method)}> has no matching returnValue`
+          throw `Not found matching result for method <${String(method)}> called with arguments: ${JSON.stringify(callArgs)}`
         }
         if ('returnValue' in matchingResult) return matchingResult.returnValue
         if ('throwError' in matchingResult) throw matchingResult.throwError

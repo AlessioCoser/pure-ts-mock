@@ -24,7 +24,7 @@ describe('mock', () => {
 
   it('should throwError on a non-mocked method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    expect(() => mockedRepo.all()).toThrow('method <all> has no matching returnValue')
+    expect(() => mockedRepo.all()).toThrow('Not found matching result for method <all> called with arguments: []')
   })
 
   it('should return the mocked value when calling a method', async () => {
