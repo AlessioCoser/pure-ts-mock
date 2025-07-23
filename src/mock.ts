@@ -6,14 +6,27 @@ type Methods<T> = {
   [K in keyof T]: T[K] extends Fn ? K : never
 }[keyof T]
 
-type MockedMethodReturns<T extends Fn> =
-  | Array<{
-      args: Parameters<T>
-      returnValue: ReturnType<T>
-    }>
+type MockedMethodReturn<T extends Fn> = {
+  args: Parameters<T>
+  returnValue: ReturnType<T>
+}
+type MockedMethodThrow<T extends Fn> = {
+  args: Parameters<T>
+  throwError: Error | string
+}
+type MockedMethodResolve<T extends Fn> = {
+  args: Parameters<T>
+  resolveValue: Awaited<ReturnType<T>>
+}
+type MockedMethodReject<T extends Fn> = {
+  args: Parameters<T>
+  rejectValue: Error | string
+}
+type MockedMethodArray<T extends Fn> =
+  | Array<MockedMethodReturn<T> | MockedMethodThrow<T> | MockedMethodResolve<T> | MockedMethodReject<T>>
   | undefined
-type MockedReturns<T> = {
-  [K in Methods<T>]: MockedMethodReturns<Extract<T[K], Fn>>
+type MockedMethods<T> = {
+  [K in Methods<T>]: MockedMethodArray<Extract<T[K], Fn>>
 }
 
 type Calls<T> = {
@@ -23,13 +36,60 @@ type Calls<T> = {
 export type Mock<T extends object> = T & { __isMock: true }
 type InternalMock<T extends object> = Mock<T> & {
   __calls: Calls<T>
-  __mockedReturns: MockedReturns<T>
+  __mockedMethods: MockedMethods<T>
+  __mockCall(
+    method: Methods<T>,
+    args: Parameters<Extract<T[Methods<T>], Fn>>,
+    value: any,
+    type: 'return' | 'throw' | 'resolve' | 'reject'
+  ): void
 }
 
 export function mock<T extends object>(): Mock<T> {
-  const __mockedReturns: Partial<MockedReturns<T>> = {}
+  const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
-  return { __calls, __mockedReturns, __isMock: true } as unknown as Mock<T>
+  return {
+    __calls,
+    __mockedMethods: __mockedMethods,
+    __isMock: true,
+    __mockCall(
+      method: Methods<T>,
+      args: Parameters<Extract<T[Methods<T>], Fn>>,
+      value: any,
+      type: 'return' | 'throw' | 'resolve' | 'reject'
+    ) {
+      if (!__mockedMethods[method]) {
+        __mockedMethods[method] = []
+      }
+
+      if (type === 'return') {
+        __mockedMethods[method].push({ args: args, returnValue: value })
+      } else if (type === 'throw') {
+        __mockedMethods[method].push({ args: args, throwError: value })
+      } else if (type === 'resolve') {
+        __mockedMethods[method].push({ args: args, resolveValue: value })
+      } else if (type === 'reject') {
+        __mockedMethods[method].push({ args: args, rejectValue: value })
+      }
+
+      ;(this as any)[method] = ((...callArgs: any[]) => {
+        if (!__calls[method]) {
+          __calls[method] = []
+        }
+        __calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
+        const results = __mockedMethods[method] || []
+        const matchingResult = results.find(r => equal(r.args, callArgs))
+        if (!matchingResult) {
+          throw new Error(`method <${String(method)}> has no matching returnValue`)
+        }
+
+        if ('returnValue' in matchingResult) return matchingResult.returnValue
+        if ('throwError' in matchingResult) throw matchingResult.throwError
+        if ('resolveValue' in matchingResult) return Promise.resolve(matchingResult.resolveValue)
+        if ('rejectValue' in matchingResult) return Promise.reject(matchingResult.rejectValue)
+      }) as T[keyof T]
+    },
+  } as unknown as Mock<T>
 }
 
 type VerifyFn<T extends Fn> = {
@@ -73,13 +133,24 @@ export const verify = <T extends object>(mock: Mock<T>) => {
 type ParametersWithAny<T extends (...args: any) => any> =
   Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | Any } : never
 
-export type WhenFn<T extends Fn> = {
+type WhenFn<T extends Fn> = {
   (...args: ParametersWithAny<T>): {
     willReturn: (value: ReturnType<T>) => void
+    willThrow: (error: Error | string) => void
   }
 }
+
+type AsyncWhenFn<T extends Fn> = {
+  (...args: ParametersWithAny<T>): {
+    willResolve: (value: Awaited<ReturnType<T>>) => void
+    willReject: (error: Error | string) => void
+  }
+}
+
+type WhenFnSelector<T extends Fn> = ReturnType<T> extends Promise<any> ? AsyncWhenFn<T> : WhenFn<T>
+
 type When<T extends object> = {
-  [K in Methods<T>]: WhenFn<Extract<T[K], Fn>>
+  [K in Methods<T>]: WhenFnSelector<Extract<T[K], Fn>>
 }
 
 export const when = <T extends object>(mock: Mock<T>) => {
@@ -90,29 +161,12 @@ export const when = <T extends object>(mock: Mock<T>) => {
       get(_, prop: string) {
         const method = prop as unknown as Methods<T>
         return (...args: any[]) => {
+          const allArgs = args as Parameters<Extract<T[Methods<T>], Fn>>
           return {
-            willReturn: (returnValue: any) => {
-              if (!internalMock.__mockedReturns[method]) {
-                internalMock.__mockedReturns[method] = []
-              }
-              internalMock.__mockedReturns[method].push({
-                args: args as Parameters<Extract<T[Methods<T>], Fn>>,
-                returnValue,
-              })
-
-              ;(internalMock as T)[method as keyof T] = ((...callArgs: any[]) => {
-                if (!internalMock.__calls[method]) {
-                  internalMock.__calls[method] = []
-                }
-                internalMock.__calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
-                const returns = internalMock.__mockedReturns[method] || []
-                const matchingReturn = returns.find(r => equal(r.args, callArgs))
-                if (!matchingReturn) {
-                  throw new Error(`method <${String(method)}> has no matching returnValue`)
-                }
-                return matchingReturn.returnValue
-              }) as T[keyof T]
-            },
+            willReturn: (returnValue: any) => internalMock.__mockCall(method, allArgs, returnValue, 'return'),
+            willThrow: (error: any) => internalMock.__mockCall(method, allArgs, error, 'throw'),
+            willResolve: (resolveValue: any) => internalMock.__mockCall(method, allArgs, resolveValue, 'resolve'),
+            willReject: (rejectValue: any) => internalMock.__mockCall(method, allArgs, rejectValue, 'reject'),
           }
         }
       },
