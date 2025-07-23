@@ -1,5 +1,5 @@
 {
-  "name": "ts-mock",
+  "name": "pure-ts-mock",
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -11,9 +11,26 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
-    "@vitest/coverage-v8": "3.2.2",
+    "@vitest/coverage-v8": "3.2.4",
     "prettier": "^3.5.3",
     "typescript": "~5.8.3",
     "vitest": "^3.2.4"
-  }
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Alessio Coser"
+  },
+  "description": "A minimalist, type-safe mocking library for TypeScript. Expressive, framework-agnostic, and dependency-free.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alessiocoser/pure-ts-mock.git"
+  },
+  "keywords": [
+    "typescript",
+    "mock",
+    "testing",
+    "type-safe",
+    "minimal",
+    "framework-agnostic"
+  ]
 }

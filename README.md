@@ -1,5 +1,6 @@
-# TS-Mock
-TS-Mock is a minimalist, type-safe mocking library for TypeScript. It’s designed to be expressive, framework-agnostic, and dependency-free giving you everything you need for effective mocking, and nothing you don’t.
+# pure-ts-mock
+
+pure-ts-mock is a minimalist, type-safe mocking library for TypeScript. It’s designed to be expressive, framework-agnostic, and dependency-free—giving you everything you need for effective mocking, and nothing you don’t.
 
 > If you feel the need for more, it’s probably time to refactor your code.
 
@@ -12,13 +13,14 @@ TS-Mock is a minimalist, type-safe mocking library for TypeScript. It’s design
 - 🚫 **No Dependencies**: Pure TypeScript, zero runtime dependencies.
 
 ## Philosophy
-TS-Mock is intentionally simple. If you need more, consider refactoring your code for better testability.
-
-<hr></hr>
+pure-ts-mock is intentionally simple. If you need more, consider refactoring your code for better testability.
 
 ## Prerequisites
 - Node.js
 - pnpm
+
+## Install
+_Coming soon..._
 
 ## Quick Start
 Suppose you have a ModelRepository interface:
@@ -30,10 +32,7 @@ interface ModelRepository {
 }
 ```
 
-#### Install
-Coming soon...
-
-#### Create a Mock
+### Create a Mock
 
 To create a mock, simply call the `mock` function with your interface type:
 
@@ -51,7 +50,7 @@ const mockedRepo = mock<ModelRepository>({ property: 'default-value' })
 
 This sets the initial value for the `property` field. You can still override it later in your tests.
 
-#### Program Methods
+### Program Methods
 
 You can program your mock's methods to return, throw, resolve, or reject values based on the arguments provided. This allows you to precisely control your mock's behavior in different scenarios.
 
@@ -77,7 +76,7 @@ If a method is called but not programmed, it throws:
 Not found matching result for method <all> called with arguments: []
 ```
 
-#### Verify Calls
+### Verify Calls
 
 After exercising your code, you can verify how your mock was used. The `verify` API lets you assert that methods were called, how many times, and with which arguments.
 
@@ -105,7 +104,7 @@ verify(someOtherMock).complex.toHaveBeenCalledWith({
 
 If the verification fails, a clear error message will be thrown, showing what was expected and what was actually called. This helps you quickly diagnose test failures.
 
-#### Set Default Properties
+### Set Default Properties
 
 You can set default property values when creating your mock. This is useful for interfaces or classes that require certain properties to be initialized:
 
@@ -116,7 +115,7 @@ expect(mockedRepo.property).toBe('default-value')
 
 You can still override these properties later in your tests.
 
-#### Program Properties
+### Program Properties
 
 You can program (set) or update properties on your mock just like you would on a real object:
 
