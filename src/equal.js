@@ -1,4 +1,5 @@
 'use strict'
+
 // slightly modified version of https://github.com/epoberezkin/fast-deep-equal/
 
 export function equal(a, b) {
@@ -70,6 +71,7 @@ export class Any {
   }
 
   match(actual) {
+    if (this.expectedType === undefined) return true
     if (typeof this.expectedType === 'string') {
       return typeof actual === this.expectedType
     }

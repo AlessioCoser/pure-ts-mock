@@ -116,24 +116,30 @@ describe('equal', () => {
   describe('any constructor property', () => {
     it.each`
       a                  | b                  | result   | description
-      ${any(String)}     | ${'text'}          | ${true}  | ${'any string match'}
-      ${any(String)}     | ${true}            | ${false} | ${'any string no-match'}
-      ${any(Number)}     | ${123456}          | ${true}  | ${'any number match'}
-      ${any(Number)}     | ${'invalid'}       | ${false} | ${'any number no-match'}
-      ${any(Boolean)}    | ${true}            | ${true}  | ${'any boolean match'}
-      ${any(Boolean)}    | ${'invalid'}       | ${false} | ${'any boolean no-match'}
-      ${any(Function)}   | ${() => {}}        | ${true}  | ${'any arrow-function match'}
-      ${any(Function)}   | ${func1}           | ${true}  | ${'any function match'}
-      ${any(Function)}   | ${arrowFunc1}      | ${true}  | ${'any arrow function match'}
-      ${any(Function)}   | ${'invalid'}       | ${false} | ${'any function no-match'}
-      ${any(Object)}     | ${{ a: '1' }}      | ${true}  | ${'any object match'}
-      ${any(Object)}     | ${'invalid'}       | ${false} | ${'any object no-match'}
-      ${any(Array)}      | ${[1, 2, 3]}       | ${true} | ${'any array match'}
-      ${any(Array)}      | ${'invalid'}       | ${false} | ${'any array no-match'}
+      ${any(String)}     | ${'text'}          | ${true}  | ${'any(String) match'}
+      ${any(String)}     | ${true}            | ${false} | ${'any(String) no-match'}
+      ${any(Number)}     | ${123456}          | ${true}  | ${'any(Number) match'}
+      ${any(Number)}     | ${'invalid'}       | ${false} | ${'any(Number) no-match'}
+      ${any(Boolean)}    | ${true}            | ${true}  | ${'any(Boolean) match'}
+      ${any(Boolean)}    | ${'invalid'}       | ${false} | ${'any(Boolean) no-match'}
+      ${any(Function)}   | ${arrowFunc1}      | ${true}  | ${'any(() => {}) match'}
+      ${any(Function)}   | ${func1}           | ${true}  | ${'any(Function) match'}
+      ${any(Function)}   | ${'invalid'}       | ${false} | ${'any(Function) no-match'}
+      ${any(Object)}     | ${{ a: '1' }}      | ${true}  | ${'any(Object) match'}
+      ${any(Object)}     | ${'invalid'}       | ${false} | ${'any(Object) no-match'}
+      ${any(Array)}      | ${[1, 2, 3]}       | ${true} | ${'any(Array) match'}
+      ${any(Array)}      | ${'invalid'}       | ${false} | ${'any(Array) no-match'}
+      ${any()}           | ${'text'}          | ${true} | ${'any() with string match'}
+      ${any()}           | ${123456}          | ${true} | ${'any() with number match'}
+      ${any()}           | ${true}            | ${true} | ${'any() with boolean match'}
+      ${any()}           | ${{ a: 1 }}        | ${true} | ${'any() with object match'}
+      ${any()}           | ${[1, 2]}          | ${true} | ${'any() with array match'}
+      ${any()}           | ${func1}           | ${true} | ${'any() with function match'}
+      ${any()}           | ${arrowFunc1}      | ${true} | ${'any() with arrow-function match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
-  describe('custom classes', () => {
+  describe('any with custom classes', () => {
     it.each`
       a                  | b                  | result   | description
       ${any(Class1)}     | ${new Class1()}    | ${true}  | ${'any class match'}
