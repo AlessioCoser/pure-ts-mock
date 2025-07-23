@@ -35,7 +35,6 @@ describe('mock', () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).findById('first').willReturn(Promise.resolve({ id: 'first', externalId: 'ext-first' }))
     when(mockedRepo).findById('second').willReturn(Promise.resolve({ id: 'second', externalId: 'ext-second' }))
-
     expect(await mockedRepo.findById('first')).toEqual({ id: 'first', externalId: 'ext-first' })
     expect(await mockedRepo.findById('second')).toEqual({ id: 'second', externalId: 'ext-second' })
   })
@@ -43,7 +42,6 @@ describe('mock', () => {
   it('should return the mocked value ignoring the parameter used', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).findById(any()).willReturn(Promise.resolve({ id: 'all', externalId: 'ext-all' }))
-
     expect(await mockedRepo.findById('first')).toEqual({ id: 'all', externalId: 'ext-all' })
     expect(await mockedRepo.findById('second')).toEqual({ id: 'all', externalId: 'ext-all' })
   })
