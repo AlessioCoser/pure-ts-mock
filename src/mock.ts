@@ -1,4 +1,4 @@
-import { equal } from './equal.js'
+import { Any, equal } from './equal.js'
 
 type Fn = (...args: any[]) => any
 
@@ -70,8 +70,11 @@ export const verify = <T extends object>(mock: Mock<T>) => {
   ) as Verify<T>
 }
 
+type ParametersWithAny<T extends (...args: any) => any> =
+  Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | Any } : never
+
 export type WhenFn<T extends Fn> = {
-  (...args: Parameters<T>): {
+  (...args: ParametersWithAny<T>): {
     willReturn: (value: ReturnType<T>) => void
   }
 }

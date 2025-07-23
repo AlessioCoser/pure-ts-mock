@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mock, verify, when } from '../src/mock.js'
+import { any } from '../src/any.js'
 
 interface ModelRepository {
   property: string
@@ -9,30 +10,64 @@ interface ModelRepository {
 
 interface Model {
   id: string
-  externalModelId: string
+  externalId: string
 }
 
-describe('test', () => {
+describe('mock', () => {
+  it('should set a property', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    mockedRepo.property = 'a-property-value'
+    expect(mockedRepo.property).toEqual('a-property-value')
+  })
+
+  it('should return undefined on a non-mocked method', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    expect(mockedRepo.all).toBeUndefined() // TODO: make the method callable?
+  })
+
+  it('should return the mocked value when calling a method', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willReturn(Promise.resolve([]))
+    expect(await mockedRepo.all()).toEqual([])
+  })
+
+  it('should return the mocked value based on the parameter used', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById('first').willReturn(Promise.resolve({ id: 'first', externalId: 'ext-first' }))
+    when(mockedRepo).findById('second').willReturn(Promise.resolve({ id: 'second', externalId: 'ext-second' }))
+
+    expect(await mockedRepo.findById('first')).toEqual({ id: 'first', externalId: 'ext-first' })
+    expect(await mockedRepo.findById('second')).toEqual({ id: 'second', externalId: 'ext-second' })
+  })
+
+  it('should return the mocked value ignoring the parameter used', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any(String)).willReturn(Promise.resolve({ id: 'all', externalId: 'ext-all' }))
+
+    expect(await mockedRepo.findById('first')).toEqual({ id: 'all', externalId: 'ext-all' })
+    expect(await mockedRepo.findById('second')).toEqual({ id: 'all', externalId: 'ext-all' })
+  })
+
   it('xxx', async () => {
     const mockedRepo = mock<ModelRepository>()
 
     mockedRepo.property = 'a-property-value'
-    when(mockedRepo).findById('123').willReturn(Promise.resolve({ id: '123', externalModelId: 'ext-123' }))
+    when(mockedRepo).findById('first').willReturn(Promise.resolve({ id: 'first', externalId: 'ext-first' }))
     when(mockedRepo).all().willReturn(Promise.resolve([]))
-    when(mockedRepo).findById('456').willReturn(Promise.resolve({ id: '456', externalModelId: 'ext-456' }))
+    when(mockedRepo).findById('second').willReturn(Promise.resolve({ id: 'second', externalId: 'ext-second' }))
 
-    const t = await mockedRepo.findById('123')
-    const a = await mockedRepo.all()
-    const t2 = await mockedRepo.findById('456')
+    const firstModel = await mockedRepo.findById('first')
+    const allModels = await mockedRepo.all()
+    const secondModel = await mockedRepo.findById('second')
 
     expect(mockedRepo.property).toEqual('a-property-value')
-    expect(a).toEqual([])
-    expect(t).toEqual({ id: '123', externalModelId: 'ext-123' })
-    expect(t2).toEqual({ id: '456', externalModelId: 'ext-456' })
+    expect(allModels).toEqual([])
+    expect(firstModel).toEqual({ id: 'first', externalId: 'ext-first' })
+    expect(secondModel).toEqual({ id: 'second', externalId: 'ext-second' })
     verify(mockedRepo).all.toHaveBeenCalled(1)
     verify(mockedRepo).findById.toHaveBeenCalled(2)
-    verify(mockedRepo).findById.toHaveBeenCalledWith('123')
-    verify(mockedRepo).findById.toHaveBeenCalledWith('456')
+    verify(mockedRepo).findById.toHaveBeenCalledWith('first')
+    verify(mockedRepo).findById.toHaveBeenCalledWith('second')
     expect(() => mockedRepo.findById('678')).toThrowError('method <findById> has no matching returnValue')
   })
 })
