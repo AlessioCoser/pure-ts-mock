@@ -92,7 +92,7 @@ export function mock<T extends object>(defaultProperties: Partial<AllProperties<
         const results = internal.__mockedMethods[method] || []
         const matchingResult = results.find(r => equal(r.args, callArgs))
         if (!matchingResult) {
-          throw new Error(`method <${String(method)}> has no matching returnValue`)
+          throw `method <${String(method)}> has no matching returnValue`
         }
         if ('returnValue' in matchingResult) return matchingResult.returnValue
         if ('throwError' in matchingResult) throw matchingResult.throwError
@@ -119,20 +119,20 @@ export const verify = <T extends object>(mock: Mock<T>) => {
       get(_, prop: string) {
         const method = prop as unknown as Methods<T>
         return {
-          toHaveBeenCalled: (times: number = 1) => {
+          toHaveBeenCalled: (times?: number) => {
             const numberOfCalls = internalMock.__calls[method]?.length || 0
-            if (numberOfCalls !== times) {
-              throw new Error(
-                `Expected method ${String(method)} to be called ${times} times, but was called ${numberOfCalls} times.`
-              )
+            if (times === undefined && numberOfCalls === 0) {
+              throw `Expected method ${String(method)} to be called at least once, but it was never called.`
+            }
+            if (times !== undefined && numberOfCalls !== times) {
+              throw `Expected method ${String(method)} to be called ${times} times, but was called ${numberOfCalls} times.`
             }
           },
           toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
             const methodCalls = internalMock.__calls[method] || []
             if (!methodCalls.some(call => equal(call, args))) {
-              throw new Error(
-                `Expected method ${String(method)} to be called with [${args}], but it was not called with those arguments.\n\nCalls: ${JSON.stringify(methodCalls, null, 2)}`
-              )
+              const calls = methodCalls.map(call => JSON.stringify(call)).join(',\n\t')
+              throw `Expected method ${String(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: [\n\t${calls}\n]`
             }
           },
         } as Verify<Extract<T[Methods<T>], Fn>>

@@ -24,7 +24,7 @@ describe('mock', () => {
 
   it('should throwError on a non-mocked method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    expect(() => mockedRepo.all()).toThrow(new Error('method <all> has no matching returnValue'))
+    expect(() => mockedRepo.all()).toThrow('method <all> has no matching returnValue')
   })
 
   it('should return the mocked value when calling a method', async () => {
@@ -71,26 +71,59 @@ describe('mock', () => {
     expect(mockedRepo.property).toStrictEqual('updated-value')
   })
 
-  it('xxx', async () => {
+  it('should verify a method to have been called', async () => {
     const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    mockedRepo.findById('second')
+    verify(mockedRepo).findById.toHaveBeenCalled()
+  })
 
-    mockedRepo.property = 'a-property-value'
-    when(mockedRepo).findById('first').willReturn({ id: 'first', externalId: 'ext-first' })
-    when(mockedRepo).all().willResolve([])
-    when(mockedRepo).findById('second').willReturn({ id: 'second', externalId: 'ext-second' })
+  it('should verify a method to have been called, but it is not', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
 
-    const firstModel = mockedRepo.findById('first')
-    const allModels = await mockedRepo.all()
-    const secondModel = mockedRepo.findById('second')
+    expect(() => verify(mockedRepo).findById.toHaveBeenCalled()).toThrow(
+      'Expected method findById to be called at least once, but it was never called.'
+    )
+  })
 
-    expect(mockedRepo.property).toEqual('a-property-value')
-    expect(allModels).toEqual([])
-    expect(firstModel).toEqual({ id: 'first', externalId: 'ext-first' })
-    expect(secondModel).toEqual({ id: 'second', externalId: 'ext-second' })
-    verify(mockedRepo).all.toHaveBeenCalled(1)
+  it('should verify a method to have been called nth times', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    mockedRepo.findById('second')
     verify(mockedRepo).findById.toHaveBeenCalled(2)
-    verify(mockedRepo).findById.toHaveBeenCalledWith('first')
+  })
+
+  it('should verify a method to have been called nth times, but it is not', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    mockedRepo.findById('second')
+    expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
+      'Expected method findById to be called 1 times, but was called 2 times.'
+    )
+  })
+
+  it('should verify a method to have been called with arguments', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    mockedRepo.findById('second')
     verify(mockedRepo).findById.toHaveBeenCalledWith('second')
-    expect(() => mockedRepo.findById('678')).toThrowError('method <findById> has no matching returnValue')
+  })
+
+  it('should verify a method to have been called with arguments, but it is not', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    expect(() => verify(mockedRepo).findById.toHaveBeenCalledWith('second')).toThrow(
+      'Expected method findById to be called with arguments:\n["second"]\nBut it was not called.\n' +
+        '\n' +
+        'Registered calls: [\n\t' +
+        '["first"]\n' +
+        ']'
+    )
   })
 })
