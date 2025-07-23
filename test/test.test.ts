@@ -4,7 +4,9 @@ import { any } from '../src/any.js'
 
 interface ModelRepository {
   property: string
+
   findById(id: string): Model | null
+
   all(): Promise<Model[]>
 }
 
@@ -20,9 +22,9 @@ describe('mock', () => {
     expect(mockedRepo.property).toEqual('a-property-value')
   })
 
-  it('should return undefined on a non-mocked method', async () => {
+  it('should throwError on a non-mocked method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    expect(mockedRepo.all).toBeUndefined() // TODO: make the method callable?
+    expect(() => mockedRepo.all()).toThrow(new Error('method <all> has no matching returnValue'))
   })
 
   it('should return the mocked value when calling a method', async () => {
@@ -49,15 +51,24 @@ describe('mock', () => {
   it('should throw the mocked value', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).findById(any()).willThrow(new Error('this is an error'))
-
     expect(() => mockedRepo.findById('second')).toThrow(new Error('this is an error'))
   })
 
   it('should reject the mocked value', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).all().willReject(new Error('this is an error'))
-
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('this is an error'))
+  })
+
+  it('should handle a default property value', async () => {
+    const mockedRepo = mock<ModelRepository>({ property: 'default' })
+    expect(mockedRepo.property).toStrictEqual('default')
+  })
+
+  it('should set a single property', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    mockedRepo.property = 'updated-value'
+    expect(mockedRepo.property).toStrictEqual('updated-value')
   })
 
   it('xxx', async () => {

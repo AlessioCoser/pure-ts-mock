@@ -6,6 +6,10 @@ type Methods<T> = {
   [K in keyof T]: T[K] extends Fn ? K : never
 }[keyof T]
 
+type AllProperties<T> = {
+  [K in keyof T as T[K] extends Fn ? never : K]: T[K]
+}
+
 type MockedMethodReturn<T extends Fn> = {
   args: Parameters<T>
   returnValue: ReturnType<T>
@@ -45,12 +49,13 @@ type InternalMock<T extends object> = Mock<T> & {
   ): void
 }
 
-export function mock<T extends object>(): Mock<T> {
+export function mock<T extends object>(defaultProperties: Partial<AllProperties<T>> = {}): Mock<T> {
   const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
-  return {
+  const internalMock = {
+    ...defaultProperties,
     __calls,
-    __mockedMethods: __mockedMethods,
+    __mockedMethods,
     __isMock: true,
     __mockCall(
       method: Methods<T>,
@@ -61,35 +66,41 @@ export function mock<T extends object>(): Mock<T> {
       if (!__mockedMethods[method]) {
         __mockedMethods[method] = []
       }
-
       if (type === 'return') {
-        __mockedMethods[method].push({ args: args, returnValue: value })
+        __mockedMethods[method].push({ args, returnValue: value })
       } else if (type === 'throw') {
-        __mockedMethods[method].push({ args: args, throwError: value })
+        __mockedMethods[method].push({ args, throwError: value })
       } else if (type === 'resolve') {
-        __mockedMethods[method].push({ args: args, resolveValue: value })
+        __mockedMethods[method].push({ args, resolveValue: value })
       } else if (type === 'reject') {
-        __mockedMethods[method].push({ args: args, rejectValue: value })
+        __mockedMethods[method].push({ args, rejectValue: value })
       }
-
-      ;(this as any)[method] = ((...callArgs: any[]) => {
-        if (!__calls[method]) {
-          __calls[method] = []
+    },
+  }
+  return new Proxy(internalMock as InternalMock<T>, {
+    get(internal, prop) {
+      const method = prop as unknown as Methods<T>
+      if (method in internal) {
+        return internal[method]
+      }
+      return (...args: any[]) => {
+        const callArgs = args as Parameters<Extract<T[Methods<T>], Fn>>
+        if (!internal.__calls[method]) {
+          internal.__calls[method] = []
         }
-        __calls[method].push(callArgs as Parameters<Extract<T[Methods<T>], Fn>>)
-        const results = __mockedMethods[method] || []
+        internal.__calls[method].push(callArgs)
+        const results = internal.__mockedMethods[method] || []
         const matchingResult = results.find(r => equal(r.args, callArgs))
         if (!matchingResult) {
           throw new Error(`method <${String(method)}> has no matching returnValue`)
         }
-
         if ('returnValue' in matchingResult) return matchingResult.returnValue
         if ('throwError' in matchingResult) throw matchingResult.throwError
         if ('resolveValue' in matchingResult) return Promise.resolve(matchingResult.resolveValue)
         if ('rejectValue' in matchingResult) return Promise.reject(matchingResult.rejectValue)
-      }) as T[keyof T]
+      }
     },
-  } as unknown as Mock<T>
+  }) as Mock<T>
 }
 
 type VerifyFn<T extends Fn> = {
