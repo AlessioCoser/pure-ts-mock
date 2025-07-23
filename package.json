@@ -32,5 +32,20 @@
     "type-safe",
     "minimal",
     "framework-agnostic"
-  ]
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  }
 }

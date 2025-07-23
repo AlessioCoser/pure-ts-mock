@@ -19,6 +19,17 @@
     /* AND if you're building for a library: */
     "declaration": true,
     /* If your code doesn't run in the DOM: */
-    "lib": ["es2022"]
-  }
+    "lib": ["es2022"],
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "exclude": [
+    "test",
+    "vite.config.*",
+    "vitest.config.*",
+    "node_modules"
+  ],
+  "include": [
+    "src"
+  ]
 }
