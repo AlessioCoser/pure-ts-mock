@@ -49,11 +49,15 @@ type InternalMock<T extends object> = Mock<T> & {
   ): void
 }
 
-export function mock<T extends object>(defaultProperties: Partial<AllProperties<T>> = {}): Mock<T> {
+type HasProperties<T> = keyof AllProperties<T> extends never ? false : true
+
+export function mock<T extends object>(
+  defaultProperties?: HasProperties<T> extends true ? AllProperties<T> : never
+): Mock<T> {
   const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
   const internalMock = {
-    ...defaultProperties,
+    ...(defaultProperties || {}),
     __calls,
     __mockedMethods,
     __isMock: true,
