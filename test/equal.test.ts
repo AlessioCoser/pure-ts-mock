@@ -104,6 +104,17 @@ describe('equal', () => {
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
+  describe('sets', () => {
+    it.each`
+      a                      | b                        | result   | description
+      ${new Set([1, 2, 3])}  | ${new Set([1, 2, 3])}    | ${true}  | ${'same sets are equal'}
+      ${new Set([1, 2, 3])}  | ${new Set([2, 3, 1])}    | ${true}  | ${'same sets with different order are equal'}
+      ${new Set([])}         | ${new Set([1])}          | ${false} | ${'set with one more element is not equal'}
+      ${new Set([2])}        | ${new Set([1])}          | ${false} | ${'set with a different element is not equal'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
+  // ArrayBuffer
+
   describe('any property', () => {
     it.each`
       a                  | b                  | result   | description
@@ -158,8 +169,6 @@ describe('equal', () => {
       ${any(Class1)}     | ${new Class2()}    | ${false} | ${'any class no-match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
-
-  // Map, Set, ArrayBuffer
 
   describe('sample objects', () => {
     it('big object', () => {
