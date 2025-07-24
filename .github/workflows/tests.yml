@@ -19,4 +19,6 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install
-      - run: pnpm test
+      - run: pnpm coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4

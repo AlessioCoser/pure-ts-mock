@@ -1,6 +1,6 @@
 # pure-ts-mock
 
-![Tests](https://github.com/alessiocoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
 
 pure-ts-mock is a minimalist, type-safe mocking library for TypeScript. It’s designed to be expressive, framework-agnostic, and dependency-free—giving you everything you need for effective mocking, and nothing you don’t.
 
