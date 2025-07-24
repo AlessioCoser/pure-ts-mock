@@ -27,7 +27,19 @@ pure-ts-mock is intentionally simple. If you need more, consider refactoring you
 - pnpm
 
 ## Install
-_Coming soon..._
+npm
+```
+npm i pure-ts-mock
+```
+pnpm
+```
+pnpm add pure-ts-mock
+```
+yarn
+```
+yarn add pure-ts-mock
+```
+
 
 ## Quick Start
 Suppose you have a ModelRepository interface:
