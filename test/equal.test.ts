@@ -97,10 +97,11 @@ describe('equal', () => {
 
   describe('maps', () => {
     it.each`
-      a                           | b                          | result   | description
-      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v1']])} | ${true}  | ${'same map is equal'}
-      ${new Map([['k1', 'v1']])}  | ${new Map([['k2', 'v1']])} | ${false} | ${'different map key is not equal'}
-      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v2']])} | ${false} | ${'different map value is not equal'}
+      a                           | b                                        | result   | description
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v1']])}               | ${true}  | ${'same map is equal'}
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k2', 'v1']])}               | ${false} | ${'different map key is not equal'}
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v2']])}               | ${false} | ${'different map value is not equal'}
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v1'], ['k2', 'v2']])} | ${false} | ${'Map with different sizes'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
@@ -152,6 +153,7 @@ describe('equal', () => {
       ${any(String)}     | ${true}                    | ${false} | ${'any(String) no-match'}
       ${any(Number)}     | ${123456}                  | ${true}  | ${'any(Number) match'}
       ${any(Number)}     | ${'invalid'}               | ${false} | ${'any(Number) no-match'}
+      ${123}             | ${any('number')}           | ${true}  | ${'b is Any matcher, a is value (number)'}
       ${any(Boolean)}    | ${true}                    | ${true}  | ${'any(Boolean) match'}
       ${any(Boolean)}    | ${'invalid'}               | ${false} | ${'any(Boolean) no-match'}
       ${any(Function)}   | ${arrowFunc1}              | ${true}  | ${'any(() => {}) match'}
