@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
 
 [![license](https://img.shields.io/github/license/AlessioCoser/pure-ts-mock.svg)](https://github.com/AlessioCoser/pure-ts-mock/blob/main/LICENSE)
-[![dependencies](https://img.shields.io/librariesio/release/npm/pure-ts-mock)](https://libraries.io/npm/pure-ts-mock)
+![dependencies](https://img.shields.io/npm/dependencies/pure-ts-mock)
 [![npm version](https://img.shields.io/npm/v/pure-ts-mock.svg)](https://www.npmjs.com/package/pure-ts-mock)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/pure-ts-mock)](https://bundlephobia.com/result?p=pure-ts-mock)
 
