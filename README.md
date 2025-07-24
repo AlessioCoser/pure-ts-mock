@@ -1,6 +1,12 @@
 # pure-ts-mock
 
-![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg) [![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
+![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
+
+[![license](https://img.shields.io/github/license/AlessioCoser/pure-ts-mock.svg)](https://github.com/AlessioCoser/pure-ts-mock/blob/main/LICENSE)
+[![dependencies](https://img.shields.io/librariesio/release/npm/pure-ts-mock)](https://libraries.io/npm/pure-ts-mock)
+[![npm version](https://img.shields.io/npm/v/pure-ts-mock.svg)](https://www.npmjs.com/package/pure-ts-mock)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/pure-ts-mock)](https://bundlephobia.com/result?p=pure-ts-mock)
 
 pure-ts-mock is a minimalist, type-safe mocking library for TypeScript. It’s designed to be expressive, framework-agnostic, and dependency-free—giving you everything you need for effective mocking, and nothing you don’t.
 
