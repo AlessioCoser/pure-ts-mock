@@ -113,7 +113,19 @@ describe('equal', () => {
       ${new Set([2])}        | ${new Set([1])}          | ${false} | ${'set with a different element is not equal'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
-  // ArrayBuffer
+
+  describe('ArrayBuffer views (TypedArrays)', () => {
+    it.each`
+      a                                | b                                | result   | description
+      ${new Uint8Array([1, 2, 3])}     | ${new Uint8Array([1, 2, 3])}     | ${true}  | ${'equal Uint8Array'}
+      ${new Uint8Array([1, 2, 3])}     | ${new Uint8Array([1, 2, 4])}     | ${false} | ${'Uint8Array with different values'}
+      ${new Uint8Array([1, 2, 3])}     | ${new Uint8Array([1, 2])}        | ${false} | ${'Uint8Array with different lengths'}
+      ${new Uint8Array([1, 2, 3])}     | ${new Uint16Array([1, 2, 3])}    | ${false} | ${'different TypedArray types'}
+      ${new Float32Array([1.1, 2.2])}  | ${new Float32Array([1.1, 2.2])}  | ${true}  | ${'equal Float32Array'}
+      ${new Float32Array([1.1, 2.2])}  | ${new Float32Array([2.2, 1.1])}  | ${false} | ${'Float32Array with different order'}
+      ${new Uint8Array([1, 2, 3])}     | ${[1, 2, 3]}                     | ${false} | ${'TypedArray vs normal array'}
+    `('$description', async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
 
   describe('any property', () => {
     it.each`
