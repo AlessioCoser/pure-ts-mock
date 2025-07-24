@@ -148,6 +148,8 @@ describe('equal', () => {
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
+  // Map, Set, ArrayBuffer
+
   describe('sample objects', () => {
     it('big object', () => {
       const a = {
@@ -158,7 +160,7 @@ describe('equal', () => {
           subProp1: 'sub value1',
           subProp2: {
             subSubProp1: 'sub sub value1',
-            subSubProp2: [1, 2, { prop2: 1, prop: 2 }, 4, 5],
+            subSubProp2: [1, 2, { prop2: 1, prop: 2, prop3: any(String) }, 4, 5],
             subSubProp3: any(Array),
           },
         },
@@ -174,7 +176,7 @@ describe('equal', () => {
         prop4: {
           subProp2: {
             subSubProp1: 'sub sub value1',
-            subSubProp2: [1, 2, { prop2: 1, prop: 2 }, 4, 5],
+            subSubProp2: [1, 2, { prop2: 1, prop: any(Number), prop3: '1' }, 4, 5],
             subSubProp3: [1, [{ a: 2 }, { b: 3 }], 4],
           },
           subProp1: 'sub value1',
