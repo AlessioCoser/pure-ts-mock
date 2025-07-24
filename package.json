@@ -13,6 +13,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "pnpm build && vitest run",
+    "coverage": "pnpm test --coverage",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

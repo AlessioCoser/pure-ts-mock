@@ -125,4 +125,16 @@ describe('mock', () => {
         ']'
     )
   })
+
+  it('should verify a not-mocked method to have been called with arguments, but it is not', async () => {
+    const mockedRepo = mock<ModelRepository>()
+
+    expect(() => verify(mockedRepo).findById.toHaveBeenCalledWith('second')).toThrow(
+      'Expected method findById to be called with arguments:\n["second"]\nBut it was not called.\n' +
+        '\n' +
+        'Registered calls: [\n\t' +
+        '\n' +
+        ']'
+    )
+  })
 })
