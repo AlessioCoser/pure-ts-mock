@@ -1,0 +1,17 @@
+# Ignore source files and configs
+src/
+test/
+coverage/
+*.ts
+*.test.ts
+tsconfig.json
+tsconfig.tsbuildinfo
+tsup.config.ts
+vitest.config.ts
+release.sh
+
+# Ignore editor and environment files
+.github/
+
+# Ignore lock files
+pnpm-lock.yaml
