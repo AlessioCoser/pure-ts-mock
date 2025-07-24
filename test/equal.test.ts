@@ -95,6 +95,15 @@ describe('equal', () => {
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
+  describe('maps', () => {
+    it.each`
+      a                           | b                          | result   | description
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v1']])} | ${true}  | ${'same map is equal'}
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k2', 'v1']])} | ${false} | ${'different map key is not equal'}
+      ${new Map([['k1', 'v1']])}  | ${new Map([['k1', 'v2']])} | ${false} | ${'different map value is not equal'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
+
   describe('any property', () => {
     it.each`
       a                  | b                  | result   | description
@@ -115,27 +124,29 @@ describe('equal', () => {
 
   describe('any constructor property', () => {
     it.each`
-      a                  | b                  | result   | description
-      ${any(String)}     | ${'text'}          | ${true}  | ${'any(String) match'}
-      ${any(String)}     | ${true}            | ${false} | ${'any(String) no-match'}
-      ${any(Number)}     | ${123456}          | ${true}  | ${'any(Number) match'}
-      ${any(Number)}     | ${'invalid'}       | ${false} | ${'any(Number) no-match'}
-      ${any(Boolean)}    | ${true}            | ${true}  | ${'any(Boolean) match'}
-      ${any(Boolean)}    | ${'invalid'}       | ${false} | ${'any(Boolean) no-match'}
-      ${any(Function)}   | ${arrowFunc1}      | ${true}  | ${'any(() => {}) match'}
-      ${any(Function)}   | ${func1}           | ${true}  | ${'any(Function) match'}
-      ${any(Function)}   | ${'invalid'}       | ${false} | ${'any(Function) no-match'}
-      ${any(Object)}     | ${{ a: '1' }}      | ${true}  | ${'any(Object) match'}
-      ${any(Object)}     | ${'invalid'}       | ${false} | ${'any(Object) no-match'}
-      ${any(Array)}      | ${[1, 2, 3]}       | ${true} | ${'any(Array) match'}
-      ${any(Array)}      | ${'invalid'}       | ${false} | ${'any(Array) no-match'}
-      ${any()}           | ${'text'}          | ${true} | ${'any() with string match'}
-      ${any()}           | ${123456}          | ${true} | ${'any() with number match'}
-      ${any()}           | ${true}            | ${true} | ${'any() with boolean match'}
-      ${any()}           | ${{ a: 1 }}        | ${true} | ${'any() with object match'}
-      ${any()}           | ${[1, 2]}          | ${true} | ${'any() with array match'}
-      ${any()}           | ${func1}           | ${true} | ${'any() with function match'}
-      ${any()}           | ${arrowFunc1}      | ${true} | ${'any() with arrow-function match'}
+      a                  | b                          | result   | description
+      ${any(String)}     | ${'text'}                  | ${true}  | ${'any(String) match'}
+      ${any(String)}     | ${true}                    | ${false} | ${'any(String) no-match'}
+      ${any(Number)}     | ${123456}                  | ${true}  | ${'any(Number) match'}
+      ${any(Number)}     | ${'invalid'}               | ${false} | ${'any(Number) no-match'}
+      ${any(Boolean)}    | ${true}                    | ${true}  | ${'any(Boolean) match'}
+      ${any(Boolean)}    | ${'invalid'}               | ${false} | ${'any(Boolean) no-match'}
+      ${any(Function)}   | ${arrowFunc1}              | ${true}  | ${'any(() => {}) match'}
+      ${any(Function)}   | ${func1}                   | ${true}  | ${'any(Function) match'}
+      ${any(Function)}   | ${'invalid'}               | ${false} | ${'any(Function) no-match'}
+      ${any(Object)}     | ${{ a: '1' }}              | ${true}  | ${'any(Object) match'}
+      ${any(Object)}     | ${'invalid'}               | ${false} | ${'any(Object) no-match'}
+      ${any(Array)}      | ${[1, 2, 3]}               | ${true}  | ${'any(Array) match'}
+      ${any(Array)}      | ${'invalid'}               | ${false} | ${'any(Array) no-match'}
+      ${any(Map)}        | ${new Map([['k1', 'v1']])} | ${true}  | ${'any(Map) match'}
+      ${any(Map)}        | ${new Set(['k1', 'v1'])}   | ${false} | ${'any(Map) no-match'}
+      ${any()}           | ${'text'}                  | ${true}  | ${'any() with string match'}
+      ${any()}           | ${123456}                  | ${true}  | ${'any() with number match'}
+      ${any()}           | ${true}                    | ${true}  | ${'any() with boolean match'}
+      ${any()}           | ${{ a: 1 }}                | ${true}  | ${'any() with object match'}
+      ${any()}           | ${[1, 2]}                  | ${true}  | ${'any() with array match'}
+      ${any()}           | ${func1}                   | ${true}  | ${'any() with function match'}
+      ${any()}           | ${arrowFunc1}              | ${true}  | ${'any() with arrow-function match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
