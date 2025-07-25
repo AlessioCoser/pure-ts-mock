@@ -77,6 +77,24 @@ describe('mock', () => {
     verify(mockedRepo).findById.toHaveBeenCalled()
   })
 
+  it('should verify a method to not have been called', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    verify(mockedRepo).findById.toNotHaveBeenCalled()
+  })
+
+  it('should verify a method to not have been called, but it is called', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    expect(() => verify(mockedRepo).findById.toNotHaveBeenCalled()).toThrow(
+      'Expected method findById to not be called, but it was called 1 times.\n' +
+      '\n' +
+      'Registered calls: [\n' +
+      '\t["first"]\n' +
+      ']'
+    )
+  })
+
   it('should verify a method to have been called, but it is not', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
@@ -100,7 +118,21 @@ describe('mock', () => {
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
-      'Expected method findById to be called 1 times, but was called 2 times.'
+      'Expected method findById to be called 1 times, but was called 2 times.\n' +
+      '\n' +
+      'Registered calls: [\n' +
+      '\t["first"],\n' +
+      '\t["second"]\n' +
+      ']'
+    )
+  })
+
+  it('should verify a method to have been called 1 time, but it is called zero times', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+
+    expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
+      'Expected method findById to be called 1 times, but it was never called.'
     )
   })
 

@@ -122,6 +122,7 @@ const delayedPromise = (result: MockedMethodResolve<any> | MockedMethodReject<an
 
 type VerifyFn<T extends Fn> = {
   toHaveBeenCalled: (times?: number) => void
+  toNotHaveBeenCalled: () => void
   toHaveBeenCalledWith: (...args: Parameters<T>) => void
 }
 type Verify<T extends object> = {
@@ -135,21 +136,28 @@ export const verify = <T extends object>(mock: Mock<T>) => {
     {
       get(_, prop: string) {
         const method = prop as unknown as Methods<T>
+        const methodCalls = internalMock.__calls[method] || []
+        const callsLog = `[\n\t${methodCalls.map(call => JSON.stringify(call)).join(',\n\t')}\n]`
         return {
+          toNotHaveBeenCalled: () => {
+            if (methodCalls.length > 0) {
+              throw `Expected method ${String(method)} to not be called, but it was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+            }
+          },
           toHaveBeenCalled: (times?: number) => {
-            const numberOfCalls = internalMock.__calls[method]?.length || 0
-            if (times === undefined && numberOfCalls === 0) {
+            if (times === undefined && methodCalls.length === 0) {
               throw `Expected method ${String(method)} to be called at least once, but it was never called.`
             }
-            if (times !== undefined && numberOfCalls !== times) {
-              throw `Expected method ${String(method)} to be called ${times} times, but was called ${numberOfCalls} times.`
+            if (times !== undefined && methodCalls.length === 0) {
+              throw `Expected method ${String(method)} to be called ${times} times, but it was never called.`
+            }
+            if (times !== undefined && methodCalls.length !== times) {
+              throw `Expected method ${String(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
             }
           },
           toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
-            const methodCalls = internalMock.__calls[method] || []
             if (!methodCalls.some(call => equal(call, args))) {
-              const calls = methodCalls.map(call => JSON.stringify(call)).join(',\n\t')
-              throw `Expected method ${String(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: [\n\t${calls}\n]`
+              throw `Expected method ${String(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: ${callsLog}`
             }
           },
         } as Verify<Extract<T[Methods<T>], Fn>>
