@@ -1,19 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { any, mock, verify, when } from '../src'
 
-interface ModelRepository {
-  property: string
-
-  findById(id: string): Model | null
-
-  all(): Promise<Model[]>
-}
-
-interface Model {
-  id: string
-  externalId: string
-}
-
 describe('mock', () => {
   it('should set a property', async () => {
     const mockedRepo = mock<ModelRepository>()
@@ -149,4 +136,54 @@ describe('mock', () => {
         ']'
     )
   })
+
+  it('should mock a class', async () => {
+    const mockedRepo = mock<UserRepository>()
+    mockedRepo.property = 'an-user-property'
+    when(mockedRepo).all().willResolve([])
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', name: 'Thor' })
+
+    mockedRepo.findById('first')
+    const allUsers = await mockedRepo.all()
+
+    expect(mockedRepo.property).toEqual('an-user-property')
+    expect(allUsers).toEqual([])
+    verify(mockedRepo).findById.toHaveBeenCalledWith('first')
+    verify(mockedRepo).all.toHaveBeenCalled()
+  })
 })
+
+
+interface User {
+  id: string
+  name: string
+}
+
+class UserRepository {
+  property: string
+
+  constructor() {
+    this.property = 'default'
+  }
+
+  findById(id: string): User | null {
+    return { id, name: Math.random().toString(36) }
+  }
+
+  all(): Promise<User[]> {
+    return Promise.resolve([])
+  }
+}
+
+interface ModelRepository {
+  property: string
+
+  findById(id: string): Model | null
+
+  all(): Promise<Model[]>
+}
+
+interface Model {
+  id: string
+  externalId: string
+}
