@@ -19,7 +19,7 @@ type MockedMethodThrow<T extends Fn> = {
   args: Parameters<T>
   throwError: Error | string
 }
-type MockMethodAsyncOptions = { delay: number }
+type MockMethodAsyncOptions = { delay: number | null }
 type MockedMethodResolve<T extends Fn> = {
   args: Parameters<T>
   resolveValue: Awaited<ReturnType<T>>
@@ -80,7 +80,7 @@ export function mock<T extends object>(
       if (type === 'return') return __mockedMethods[method].push({ args, returnValue: value })
       if (type === 'throw') return __mockedMethods[method].push({ args, throwError: value })
 
-      const asyncOptions: MockMethodAsyncOptions = { delay: 0, ...options }
+      const asyncOptions: MockMethodAsyncOptions = { delay: null, ...options }
       if (type === 'resolve') __mockedMethods[method].push({ args, resolveValue: value, options: asyncOptions })
       if (type === 'reject') __mockedMethods[method].push({ args, rejectValue: value, options: asyncOptions })
     },
@@ -113,6 +113,11 @@ export function mock<T extends object>(
 
 const delayedPromise = (result: MockedMethodResolve<any> | MockedMethodReject<any>): Promise<any> => {
   return new Promise((resolve, reject) => {
+    if (result.options.delay === null) {
+      if ('resolveValue' in result) return resolve(result.resolveValue)
+      if ('rejectValue' in result) return reject(result.rejectValue)
+      return
+    }
     setTimeout(() => {
       if ('resolveValue' in result) return resolve(result.resolveValue)
       if ('rejectValue' in result) return reject(result.rejectValue)
