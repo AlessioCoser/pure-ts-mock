@@ -131,3 +131,61 @@ expect(mockedRepo.property).toBe('a-property-value')
 ```
 
 This makes it easy to simulate state changes or test how your code reacts to different property values.
+
+## API Documentation
+
+---
+
+### `mock<T>(defaultProperties?)`
+Creates a mock object for the given interface or class. Optionally, you can set default property values.
+```typescript
+const repo = mock<ModelRepository>()
+const repoWithDefaults = mock<ModelRepository>({ property: 'default-value' })
+```
+
+---
+
+### `when(mock).method(...args)`
+Programs the behavior of a mocked method for specific arguments. The returned object exposes:
+- For sync methods:
+  - `willReturn(value)` — returns the specified value
+  - `willThrow(error)` — throws the specified error
+- For async methods:
+  - `willResolve(value, options?)` — resolves with the specified value (optionally delayed)
+  - `willReject(error, options?)` — rejects with the specified error (optionally delayed)
+
+**Usage Examples:**
+```typescript
+when(repo).findById('first').willReturn(model)
+when(repo).findById('second').willThrow(new Error('Not found'))
+when(repo).all().willResolve([])
+when(repo).all().willReject(new Error('Failed'), { delay: 200 })
+when(repo).findById(any()).willReturn(model)
+```
+
+---
+
+### `verify(mock).method`
+Verifies how a mocked method was called. The returned object exposes:
+- `toNotHaveBeenCalled()` — asserts the method was never called
+- `toHaveBeenCalled(times?)` — asserts the method was called at least once, or a specific number of times
+- `toNotHaveBeenCalledWith(...args)` — asserts the method was never called with the specified arguments
+- `toHaveBeenCalledWith(...args)` — asserts the method was called with the specified arguments
+
+**Usage Examples:**
+```typescript
+verify(repo).findById.toHaveBeenCalled()
+verify(repo).findById.toHaveBeenCalled(2)
+verify(repo).findById.toHaveBeenCalledWith('first')
+verify(repo).findById.toNotHaveBeenCalled()
+verify(repo).findById.toNotHaveBeenCalledWith('second')
+```
+
+---
+
+### `any(type?)`
+Matches any value of the given type in argument matching. Useful for flexible argument matching in `when` and `verify`.
+```typescript
+when(repo).findById(any(String)).willReturn(model)
+when(repo).findById(any()).willReturn(model)
+```
