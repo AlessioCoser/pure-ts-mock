@@ -29,15 +29,15 @@ pure-ts-mock is intentionally simple. If you need more, consider refactoring you
 ## Install
 npm
 ```
-npm i pure-ts-mock
+npm install --save-dev pure-ts-mock
 ```
 pnpm
 ```
-pnpm add pure-ts-mock
+pnpm add --save-devpure-ts-mock
 ```
 yarn
 ```
-yarn add pure-ts-mock
+yarn add --dev pure-ts-mock
 ```
 
 
