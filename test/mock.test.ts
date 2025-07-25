@@ -95,6 +95,20 @@ describe('mock', () => {
     )
   })
 
+  it('should verify a method to not have been called with argument, but it is called', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    mockedRepo.findById('first')
+    expect(() => verify(mockedRepo).findById.toNotHaveBeenCalledWith('first')).toThrow(
+      'Expected method findById to not be called with arguments:\n' +
+      '["first"]\n' +
+      'But it was called with those arguments.\n\n' +
+      'Registered calls: [\n\t' +
+      '["first"]\n' +
+      ']'
+    )
+  })
+
   it('should verify a method to have been called, but it is not', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })

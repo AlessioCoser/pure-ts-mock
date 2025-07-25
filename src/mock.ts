@@ -124,6 +124,7 @@ type VerifyFn<T extends Fn> = {
   toHaveBeenCalled: (times?: number) => void
   toNotHaveBeenCalled: () => void
   toHaveBeenCalledWith: (...args: Parameters<T>) => void
+  toNotHaveBeenCalledWith: (...args: Parameters<T>) => void
 }
 type Verify<T extends object> = {
   [K in Methods<T>]: VerifyFn<Extract<T[K], Fn>>
@@ -153,6 +154,11 @@ export const verify = <T extends object>(mock: Mock<T>) => {
             }
             if (times !== undefined && methodCalls.length !== times) {
               throw `Expected method ${String(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+            }
+          },
+          toNotHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
+            if (methodCalls.some(call => equal(call, args))) {
+              throw `Expected method ${String(method)} to not be called with arguments:\n${JSON.stringify(args)}\nBut it was called with those arguments.\n\nRegistered calls: ${callsLog}`
             }
           },
           toHaveBeenCalledWith: (...args: Parameters<Extract<T[Methods<T>], Fn>>) => {
