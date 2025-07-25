@@ -98,7 +98,7 @@ export function mock<T extends object>(
         }
         internal.__calls[method].push(callArgs)
         const results = internal.__mockedMethods[method] || []
-        const matchingResult = results.find(r => equal(r.args, callArgs))
+        const matchingResult = results.findLast(r => equal(r.args, callArgs))
         if (!matchingResult) {
           throw `No match found for method <${String(method)}> called with arguments: ${JSON.stringify(callArgs)}`
         }

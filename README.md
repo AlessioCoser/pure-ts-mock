@@ -80,6 +80,8 @@ Programs the behavior of a mocked method for specific arguments. The returned ob
   - `willResolve(value, options?)` — resolves with the specified value (optionally delayed)
   - `willReject(error, options?)` — rejects with the specified error (optionally delayed)
 
+It is possible to **override the behavior** of a method. The last defined behavior will take precedence.
+
 **Usage Examples:**
 ```typescript
 when(repo).findById('first').willReturn(model)

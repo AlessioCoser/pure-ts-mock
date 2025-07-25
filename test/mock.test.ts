@@ -197,6 +197,14 @@ describe('mock', () => {
     verify(mockedRepo).findById.toHaveBeenCalledWith('first')
     verify(mockedRepo).all.toHaveBeenCalled()
   })
+
+  it('override the behavior of a method. The last defined behavior will take precedence.', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willResolve([{ id: 'first', externalId: 'ext-first' }])
+    when(mockedRepo).all().willResolve([{ id: 'second', externalId: 'ext-second' }])
+
+    expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
+  })
 })
 
 
