@@ -16,7 +16,12 @@
 - 🚫 **No Dependencies**: Pure TypeScript, zero runtime dependencies.
 
 ## Philosophy
-**pure-ts-mock** is intentionally simple. If you need more, consider refactoring your code for better testability.
+
+**pure-ts-mock** is built for simplicity and productivity. As you write tests, your editor instantly guides you with smart auto-suggestions: showing only the right methods and arguments for your types. You stay focused on your test logic, not the API. **Every test becomes effortless and error-free.**
+
+> If you’re looking for more, use it as a chance to refactor: make your communication with mocked dependencies simpler, and watch your software become more resilient and easier to maintain.
+
+If you still think a feature could be useful, please create an issue [here](https://github.com/AlessioCoser/pure-ts-mock/issues) or open a PR. The project is free, open source, and any contribution is welcomed.
 
 ## Installation
 
@@ -55,8 +60,6 @@ mockedRepo.findById('first')
 // Verify the method was called with any argument
 verify(mockedRepo).findById.toHaveBeenCalledWith('first')
 ```
-
-For details on programming method behaviors and verifying calls, see the [API Documentation](#api-documentation) below.
 
 ## API Documentation
 
