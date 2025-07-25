@@ -11,31 +11,26 @@ type AllProperties<T> = {
   [K in keyof T as T[K] extends Fn ? never : K]: T[K]
 }
 
-type MockMethodOptions = { once: boolean }
-type MockedMethodReturn<T extends Fn> = {
+type SyncMockedMethodResult<T extends Fn> = {
   args: Parameters<T>
-  returnValue: ReturnType<T>
-  options: MockMethodOptions
+  value: ReturnType<T>
+  once: boolean
+  type: 'return' | 'throw'
+  options: {}
 }
-type MockedMethodThrow<T extends Fn> = {
+
+type AsyncMockedMethodResult<T extends Fn> = {
   args: Parameters<T>
-  throwError: Error | string
-  options: MockMethodOptions
+  value: ReturnType<T>
+  once: boolean
+  type: 'resolve' | 'reject'
+  options: { delay: number | null }
 }
-type MockMethodAsyncOptions = MockMethodOptions & { delay: number | null }
-type MockedMethodResolve<T extends Fn> = {
-  args: Parameters<T>
-  resolveValue: Awaited<ReturnType<T>>
-  options: MockMethodAsyncOptions
-}
-type MockedMethodReject<T extends Fn> = {
-  args: Parameters<T>
-  rejectValue: Error | string
-  options: MockMethodAsyncOptions
-}
-type MockedMethodArray<T extends Fn> =
-  | Array<MockedMethodReturn<T> | MockedMethodThrow<T> | MockedMethodResolve<T> | MockedMethodReject<T>>
-  | undefined
+
+type MockedMethodResult<T extends Fn> = SyncMockedMethodResult<T> | AsyncMockedMethodResult<T>
+
+type MockedMethodArray<T extends Fn> = Array<MockedMethodResult<T>> | undefined
+
 type MockedMethods<T> = {
   [K in Methods<T>]: MockedMethodArray<Extract<T[K], Fn>>
 }
@@ -48,13 +43,7 @@ export type Mock<T extends object> = T & { __isMock: true }
 type InternalMock<T extends object> = Mock<T> & {
   __calls: Calls<T>
   __mockedMethods: MockedMethods<T>
-  __mockCall(
-    method: Methods<T>,
-    args: Parameters<Extract<T[Methods<T>], Fn>>,
-    value: any,
-    type: 'return' | 'throw' | 'resolve' | 'reject',
-    options: object
-  ): void
+  __mockCall<K extends Methods<T>>(method: K, result: MockedMethodResult<Extract<T[K], Fn>>): void
 }
 
 type HasProperties<T> = keyof AllProperties<T> extends never ? false : true
@@ -69,23 +58,11 @@ export function mock<T extends object>(
     __calls,
     __mockedMethods,
     __isMock: true,
-    __mockCall(
-      method: Methods<T>,
-      args: Parameters<Extract<T[Methods<T>], Fn>>,
-      value: any,
-      type: 'return' | 'throw' | 'resolve' | 'reject',
-      options: object
-    ) {
+    __mockCall<K extends Methods<T>>(method: Methods<T>, result: MockedMethodResult<Extract<T[K], Fn>>) {
       if (!__mockedMethods[method]) {
         __mockedMethods[method] = []
       }
-      const syncOptions = options as MockMethodOptions
-      if (type === 'return') return __mockedMethods[method].push({ args, returnValue: value, options: syncOptions })
-      if (type === 'throw') return __mockedMethods[method].push({ args, throwError: value, options: syncOptions })
-
-      const asyncOptions: MockMethodAsyncOptions = { delay: null, once: false, ...options }
-      if (type === 'resolve') __mockedMethods[method].push({ args, resolveValue: value, options: asyncOptions })
-      if (type === 'reject') __mockedMethods[method].push({ args, rejectValue: value, options: asyncOptions })
+      return __mockedMethods[method].push(result)
     },
   }
   return new Proxy(internalMock as InternalMock<T>, {
@@ -105,29 +82,108 @@ export function mock<T extends object>(
         if (!matchingResult) {
           throw `No match found for method <${String(method)}> called with arguments: ${JSON.stringify(callArgs)}`
         }
-        if (matchingResult.options.once) {
+        if (matchingResult.once) {
           internal.__mockedMethods[method] = internal.__mockedMethods[method]?.filter(r => r !== matchingResult)
         }
-        if ('returnValue' in matchingResult) return matchingResult.returnValue
-        if ('throwError' in matchingResult) throw matchingResult.throwError
-        if ('resolveValue' in matchingResult) return delayedPromise(matchingResult)
-        if ('rejectValue' in matchingResult) return delayedPromise(matchingResult)
+
+        switch (matchingResult.type) {
+          case 'return':
+            return syncExecution<T>(matchingResult)
+          case 'throw':
+            return syncExecution<T>(matchingResult)
+          case 'resolve':
+            return asyncExecution<T>(matchingResult)
+          case 'reject':
+            return asyncExecution<T>(matchingResult)
+        }
       }
     },
   }) as Mock<T>
 }
 
-const delayedPromise = (result: MockedMethodResolve<any> | MockedMethodReject<any>): Promise<any> => {
+const syncExecution = <T extends object>(res: SyncMockedMethodResult<Extract<T[Methods<T>], Fn>>): any => {
+  if (res.type === 'return') return res.value
+  throw res.value
+}
+
+const asyncExecution = <T extends object>(res: AsyncMockedMethodResult<Extract<T[Methods<T>], Fn>>): Promise<any> => {
   return new Promise((resolve, reject) => {
-    if (result.options.delay === null) {
-      if ('resolveValue' in result) return resolve(result.resolveValue)
-      return reject(result.rejectValue)
+    const promiseExecution = () => {
+      if (res.type === 'resolve') return resolve(res.value)
+      reject(res.value)
     }
-    setTimeout(() => {
-      if ('resolveValue' in result) return resolve(result.resolveValue)
-      if ('rejectValue' in result) return reject(result.rejectValue)
-    }, result.options.delay)
+
+    if (res.options.delay !== null) {
+      return setTimeout(promiseExecution, res.options.delay)
+    }
+    return promiseExecution()
   })
+}
+
+type ParametersWithAny<T extends (...args: any) => any> =
+  Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | Any } : never
+
+type WhenFn<T extends Fn> = {
+  (...args: ParametersWithAny<T>): {
+    willReturn: (value: ReturnType<T>) => void
+    willReturnOnce: (value: ReturnType<T>) => void
+    willThrow: (error: Error | string) => void
+    willThrowOnce: (error: Error | string) => void
+  }
+}
+
+type AsyncWhenOptions = { delay?: number | null }
+type AsyncWhenFn<T extends Fn> = {
+  (...args: ParametersWithAny<T>): {
+    willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    willResolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    willReject: (error: Error | string, options?: AsyncWhenOptions) => void
+    willRejectOnce: (error: Error | string, options?: AsyncWhenOptions) => void
+  }
+}
+
+type WhenFnSelector<T extends Fn> = ReturnType<T> extends Promise<any> ? AsyncWhenFn<T> : WhenFn<T>
+
+type When<T extends object> = {
+  [K in Methods<T>]: WhenFnSelector<Extract<T[K], Fn>>
+}
+
+export const when = <T extends object>(mock: Mock<T>) => {
+  const _mock = mock as InternalMock<T>
+  return new Proxy(
+    {},
+    {
+      get(_, prop: string) {
+        const method = prop as unknown as Methods<T>
+        return (...anyArgs: any[]) => {
+          const args = anyArgs as Parameters<Extract<T[Methods<T>], Fn>>
+
+          return {
+            willReturn: (value: any) =>
+              _mock.__mockCall(method, { args, value, once: false, type: 'return', options: {} }),
+            willReturnOnce: (value: any) =>
+              _mock.__mockCall(method, { args, value, once: true, type: 'return', options: {} }),
+            willThrow: (value: any) =>
+              _mock.__mockCall(method, { args, value, once: false, type: 'throw', options: {} }),
+            willThrowOnce: (value: any) =>
+              _mock.__mockCall(method, { args, value, once: true, type: 'throw', options: {} }),
+            willResolve: (value: any, options: AsyncWhenOptions) =>
+              _mock.__mockCall(method, { args, value, once: false, type: 'resolve', options: asyncWhenOpts(options) }),
+            willResolveOnce: (value: any, options: AsyncWhenOptions) =>
+              _mock.__mockCall(method, { args, value, once: true, type: 'resolve', options: asyncWhenOpts(options) }),
+            willReject: (value: any, options: AsyncWhenOptions) =>
+              _mock.__mockCall(method, { args, value, once: false, type: 'reject', options: asyncWhenOpts(options) }),
+            willRejectOnce: (value: any, options: AsyncWhenOptions) =>
+              _mock.__mockCall(method, { args, value, once: true, type: 'reject', options: asyncWhenOpts(options) }),
+          }
+        }
+      },
+    }
+  ) as When<T>
+}
+
+function asyncWhenOpts(options: Partial<AsyncWhenOptions>): AsyncMockedMethodResult<any>['options'] {
+  return { delay: null, ...options }
 }
 
 type VerifyFn<T extends Fn> = {
@@ -180,61 +236,4 @@ export const verify = <T extends object>(mock: Mock<T>) => {
       },
     }
   ) as Verify<T>
-}
-
-type ParametersWithAny<T extends (...args: any) => any> =
-  Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | Any } : never
-
-type WhenFn<T extends Fn> = {
-  (...args: ParametersWithAny<T>): {
-    willReturn: (value: ReturnType<T>) => void
-    willReturnOnce: (value: ReturnType<T>) => void
-    willThrow: (error: Error | string) => void
-    willThrowOnce: (error: Error | string) => void
-  }
-}
-
-type AsyncWhenOptions = { delay?: number | null }
-type AsyncWhenFn<T extends Fn> = {
-  (...args: ParametersWithAny<T>): {
-    willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
-    willResolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
-    willReject: (error: Error | string, options?: AsyncWhenOptions) => void
-    willRejectOnce: (error: Error | string, options?: AsyncWhenOptions) => void
-  }
-}
-
-type WhenFnSelector<T extends Fn> = ReturnType<T> extends Promise<any> ? AsyncWhenFn<T> : WhenFn<T>
-
-type When<T extends object> = {
-  [K in Methods<T>]: WhenFnSelector<Extract<T[K], Fn>>
-}
-
-export const when = <T extends object>(mock: Mock<T>) => {
-  const internalMock = mock as InternalMock<T>
-  return new Proxy(
-    {},
-    {
-      get(_, prop: string) {
-        const method = prop as unknown as Methods<T>
-        return (...anyArgs: any[]) => {
-          const args = anyArgs as Parameters<Extract<T[Methods<T>], Fn>>
-          return {
-            willReturn: (value: any) => internalMock.__mockCall(method, args, value, 'return', { once: false }),
-            willReturnOnce: (value: any) => internalMock.__mockCall(method, args, value, 'return', { once: true }),
-            willThrow: (error: any) => internalMock.__mockCall(method, args, error, 'throw', { once: false }),
-            willThrowOnce: (error: any) => internalMock.__mockCall(method, args, error, 'throw', { once: true }),
-            willResolve: (value: any, options: AsyncWhenOptions) =>
-              internalMock.__mockCall(method, args, value, 'resolve', {...options, once: false }),
-            willResolveOnce: (value: any, options: AsyncWhenOptions) =>
-              internalMock.__mockCall(method, args, value, 'resolve', {...options, once: true }),
-            willReject: (value: any, options: AsyncWhenOptions) =>
-              internalMock.__mockCall(method, args, value, 'reject', {...options, once: false }),
-            willRejectOnce: (rejectValue: any, options: AsyncWhenOptions) =>
-              internalMock.__mockCall(method, args, rejectValue, 'reject', {...options, once: true }),
-          }
-        }
-      },
-    }
-  ) as When<T>
 }
