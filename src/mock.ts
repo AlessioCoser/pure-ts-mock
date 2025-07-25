@@ -11,15 +11,18 @@ type AllProperties<T> = {
   [K in keyof T as T[K] extends Fn ? never : K]: T[K]
 }
 
+type MockMethodOptions = { once: boolean }
 type MockedMethodReturn<T extends Fn> = {
   args: Parameters<T>
   returnValue: ReturnType<T>
+  options: MockMethodOptions
 }
 type MockedMethodThrow<T extends Fn> = {
   args: Parameters<T>
   throwError: Error | string
+  options: MockMethodOptions
 }
-type MockMethodAsyncOptions = { delay: number | null }
+type MockMethodAsyncOptions = MockMethodOptions & { delay: number | null }
 type MockedMethodResolve<T extends Fn> = {
   args: Parameters<T>
   resolveValue: Awaited<ReturnType<T>>
@@ -50,7 +53,7 @@ type InternalMock<T extends object> = Mock<T> & {
     args: Parameters<Extract<T[Methods<T>], Fn>>,
     value: any,
     type: 'return' | 'throw' | 'resolve' | 'reject',
-    options?: any
+    options: object
   ): void
 }
 
@@ -71,16 +74,16 @@ export function mock<T extends object>(
       args: Parameters<Extract<T[Methods<T>], Fn>>,
       value: any,
       type: 'return' | 'throw' | 'resolve' | 'reject',
-      options: any = {}
+      options: object
     ) {
       if (!__mockedMethods[method]) {
         __mockedMethods[method] = []
       }
+      const syncOptions = options as MockMethodOptions
+      if (type === 'return') return __mockedMethods[method].push({ args, returnValue: value, options: syncOptions })
+      if (type === 'throw') return __mockedMethods[method].push({ args, throwError: value, options: syncOptions })
 
-      if (type === 'return') return __mockedMethods[method].push({ args, returnValue: value })
-      if (type === 'throw') return __mockedMethods[method].push({ args, throwError: value })
-
-      const asyncOptions: MockMethodAsyncOptions = { delay: null, ...options }
+      const asyncOptions: MockMethodAsyncOptions = { delay: null, once: false, ...options }
       if (type === 'resolve') __mockedMethods[method].push({ args, resolveValue: value, options: asyncOptions })
       if (type === 'reject') __mockedMethods[method].push({ args, rejectValue: value, options: asyncOptions })
     },
@@ -102,6 +105,9 @@ export function mock<T extends object>(
         if (!matchingResult) {
           throw `No match found for method <${String(method)}> called with arguments: ${JSON.stringify(callArgs)}`
         }
+        if (matchingResult.options.once) {
+          internal.__mockedMethods[method] = internal.__mockedMethods[method]?.filter(r => r !== matchingResult)
+        }
         if ('returnValue' in matchingResult) return matchingResult.returnValue
         if ('throwError' in matchingResult) throw matchingResult.throwError
         if ('resolveValue' in matchingResult) return delayedPromise(matchingResult)
@@ -115,8 +121,7 @@ const delayedPromise = (result: MockedMethodResolve<any> | MockedMethodReject<an
   return new Promise((resolve, reject) => {
     if (result.options.delay === null) {
       if ('resolveValue' in result) return resolve(result.resolveValue)
-      if ('rejectValue' in result) return reject(result.rejectValue)
-      return
+      return reject(result.rejectValue)
     }
     setTimeout(() => {
       if ('resolveValue' in result) return resolve(result.resolveValue)
@@ -183,14 +188,19 @@ type ParametersWithAny<T extends (...args: any) => any> =
 type WhenFn<T extends Fn> = {
   (...args: ParametersWithAny<T>): {
     willReturn: (value: ReturnType<T>) => void
+    willReturnOnce: (value: ReturnType<T>) => void
     willThrow: (error: Error | string) => void
+    willThrowOnce: (error: Error | string) => void
   }
 }
 
+type AsyncWhenOptions = { delay?: number | null }
 type AsyncWhenFn<T extends Fn> = {
   (...args: ParametersWithAny<T>): {
-    willResolve: (value: Awaited<ReturnType<T>>, options?: MockMethodAsyncOptions) => void
-    willReject: (error: Error | string, options?: MockMethodAsyncOptions) => void
+    willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    willResolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    willReject: (error: Error | string, options?: AsyncWhenOptions) => void
+    willRejectOnce: (error: Error | string, options?: AsyncWhenOptions) => void
   }
 }
 
@@ -207,15 +217,21 @@ export const when = <T extends object>(mock: Mock<T>) => {
     {
       get(_, prop: string) {
         const method = prop as unknown as Methods<T>
-        return (...args: any[]) => {
-          const allArgs = args as Parameters<Extract<T[Methods<T>], Fn>>
+        return (...anyArgs: any[]) => {
+          const args = anyArgs as Parameters<Extract<T[Methods<T>], Fn>>
           return {
-            willReturn: (returnValue: any) => internalMock.__mockCall(method, allArgs, returnValue, 'return'),
-            willThrow: (error: any) => internalMock.__mockCall(method, allArgs, error, 'throw'),
-            willResolve: (resolveValue: any, options: MockMethodAsyncOptions) =>
-              internalMock.__mockCall(method, allArgs, resolveValue, 'resolve', options),
-            willReject: (rejectValue: any, options: MockMethodAsyncOptions) =>
-              internalMock.__mockCall(method, allArgs, rejectValue, 'reject', options),
+            willReturn: (value: any) => internalMock.__mockCall(method, args, value, 'return', { once: false }),
+            willReturnOnce: (value: any) => internalMock.__mockCall(method, args, value, 'return', { once: true }),
+            willThrow: (error: any) => internalMock.__mockCall(method, args, error, 'throw', { once: false }),
+            willThrowOnce: (error: any) => internalMock.__mockCall(method, args, error, 'throw', { once: true }),
+            willResolve: (value: any, options: AsyncWhenOptions) =>
+              internalMock.__mockCall(method, args, value, 'resolve', {...options, once: false }),
+            willResolveOnce: (value: any, options: AsyncWhenOptions) =>
+              internalMock.__mockCall(method, args, value, 'resolve', {...options, once: true }),
+            willReject: (value: any, options: AsyncWhenOptions) =>
+              internalMock.__mockCall(method, args, value, 'reject', {...options, once: false }),
+            willRejectOnce: (rejectValue: any, options: AsyncWhenOptions) =>
+              internalMock.__mockCall(method, args, rejectValue, 'reject', {...options, once: true }),
           }
         }
       },

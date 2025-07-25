@@ -204,6 +204,47 @@ describe('mock', () => {
     when(mockedRepo).all().willResolve([{ id: 'second', externalId: 'ext-second' }])
 
     expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
+    expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
+  })
+
+  it('do not keep the programmed method with willResolveOnce', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willResolve([{ id: 'first', externalId: 'ext-first' }])
+    when(mockedRepo).all().willResolveOnce([{ id: 'second', externalId: 'ext-second' }])
+
+    expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
+    expect(await mockedRepo.all()).toEqual([{ id: 'first', externalId: 'ext-first' }])
+    expect(await mockedRepo.all()).toEqual([{ id: 'first', externalId: 'ext-first' }])
+  })
+
+  it('do not keep the programmed method with willRejectOnce', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willReject(new Error('first programmed error'))
+    when(mockedRepo).all().willRejectOnce(new Error('second programmed once error'))
+
+    await expect(() => mockedRepo.all()).rejects.toThrow(new Error('second programmed once error'))
+    await expect(() => mockedRepo.all()).rejects.toThrow(new Error('first programmed error'))
+    await expect(() => mockedRepo.all()).rejects.toThrow(new Error('first programmed error'))
+  })
+
+  it('do not keep the programmed method with willReturnOnce ', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).willReturnOnce({ id: 'second', externalId: 'ext-second' })
+
+    expect(mockedRepo.findById('any')).toEqual({ id: 'second', externalId: 'ext-second' })
+    expect(mockedRepo.findById('any')).toEqual({ id: 'first', externalId: 'ext-first' })
+    expect(mockedRepo.findById('any')).toEqual({ id: 'first', externalId: 'ext-first' })
+  })
+
+  it('do not keep the programmed method with willThrowOnce', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).findById(any()).willThrow(new Error('first programmed error'))
+    when(mockedRepo).findById(any()).willThrowOnce(new Error('second programmed once error'))
+
+    expect(() => mockedRepo.findById('any')).toThrow(new Error('second programmed once error'))
+    expect(() => mockedRepo.findById('any')).toThrow(new Error('first programmed error'))
+    expect(() => mockedRepo.findById('any')).toThrow(new Error('first programmed error'))
   })
 })
 
