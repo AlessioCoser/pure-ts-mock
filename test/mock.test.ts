@@ -26,9 +26,15 @@ describe('mock', () => {
     expect(() => mockedRepo.all()).toThrow('No match found for method <all> called with arguments: []')
   })
 
-  it('should return the mocked value when calling a method', async () => {
+  it('should resolve the mocked value when calling a method', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).all().willResolve([])
+    expect(await mockedRepo.all()).toEqual([])
+  })
+
+  it('should resolve with a 200ms delay the mocked value when calling a method', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willResolve([], { delay: 200 })
     expect(await mockedRepo.all()).toEqual([])
   })
 
@@ -56,6 +62,12 @@ describe('mock', () => {
   it('should reject the mocked value', async () => {
     const mockedRepo = mock<ModelRepository>()
     when(mockedRepo).all().willReject(new Error('this is an error'))
+    await expect(() => mockedRepo.all()).rejects.toThrow(new Error('this is an error'))
+  })
+
+  it('should reject with a 200ms delay the mocked value when calling a method', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willReject(new Error('this is an error'), { delay: 200 })
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('this is an error'))
   })
 

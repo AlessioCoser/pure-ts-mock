@@ -1,45 +1,32 @@
 # pure-ts-mock
 
-![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg)
-[![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
-
 [![npm version](https://img.shields.io/npm/v/pure-ts-mock.svg)](https://www.npmjs.com/package/pure-ts-mock)
 [![license](https://img.shields.io/github/license/AlessioCoser/pure-ts-mock.svg)](https://github.com/AlessioCoser/pure-ts-mock/blob/main/LICENSE)
 [![dependencies](https://img.shields.io/badge/dependencies-0-blue.svg?colorB=44CC11)](https://www.npmjs.com/package/pure-ts-mock?activeTab=dependencies)
+<br/>![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
 
-pure-ts-mock is a minimalist, type-safe mocking library for TypeScript. It’s designed to be expressive, framework-agnostic, and dependency-free—giving you everything you need for effective mocking, and nothing you don’t.
+**pure-ts-mock** is a minimalist, type-safe mocking library for TypeScript. It’s expressive, framework-agnostic, and has zero dependencies. Mock interfaces and classes with ease: no boilerplate, no fuss.
 
-> If you feel the need for more, it’s probably time to refactor your code.
-
-## Features
-- 🪶 **Minimal**: No bloat, no dependencies.
+## Why pure-ts-mock?
+- ✨ **Simple**: Just `mock`, `when`, `verify` and `any` keywords.
 - 🧑‍💻 **Expressive**: Readable, intention-revealing API.
-- 🛡 **Type-Safe**: Type-checked when, verify, methods and arguments.
-- 🧩 **No Boilerplate**: Just mock, when, verify and any.
+- 🛡 **Type-Safe**: Type-checked `mock`, `when`, `verify` with their `methods` and `arguments`.
 - 🔌 **Framework-Agnostic**: Works with any test runner.
 - 🚫 **No Dependencies**: Pure TypeScript, zero runtime dependencies.
 
 ## Philosophy
-pure-ts-mock is intentionally simple. If you need more, consider refactoring your code for better testability.
+**pure-ts-mock** is intentionally simple. If you need more, consider refactoring your code for better testability.
 
-## Prerequisites
-- Node.js
-- pnpm
+## Installation
 
-## Install
-npm
-```
+```bash
 npm install --save-dev pure-ts-mock
-```
-pnpm
-```
-pnpm add --save-devpure-ts-mock
-```
-yarn
-```
+# or
+pnpm add --save-dev pure-ts-mock
+# or
 yarn add --dev pure-ts-mock
 ```
-
 
 ## Quick Start
 Suppose you have a ModelRepository interface:
