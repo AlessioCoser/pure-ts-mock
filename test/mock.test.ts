@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { any, mock, verify, when } from '../src/index.js'
+import { any, mock, verify, when } from '../src'
 
 interface ModelRepository {
   property: string

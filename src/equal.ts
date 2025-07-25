@@ -1,8 +1,8 @@
 'use strict'
-
 // slightly modified version of https://github.com/epoberezkin/fast-deep-equal/
+import { Any } from './any'
 
-export function equal(a, b) {
+export function equal(a: any, b: any): boolean {
   if (a instanceof Any) return a.match(b)
   if (b instanceof Any) return b.match(a)
 
@@ -33,9 +33,11 @@ export function equal(a, b) {
     }
 
     if (ArrayBuffer.isView(a) && ArrayBuffer.isView(b)) {
-      length = a.length
-      if (length !== b.length) return false
-      for (i = length; i-- !== 0; ) if (a[i] !== b[i]) return false
+      length = a.byteLength
+      if (length !== b.byteLength) return false
+      const aBytes = new Uint8Array(a.buffer, a.byteOffset, a.byteLength)
+      const bBytes = new Uint8Array(b.buffer, b.byteOffset, b.byteLength)
+      for (i = length; i-- !== 0; ) if (aBytes[i] !== bBytes[i]) return false
       return true
     }
 
@@ -47,9 +49,10 @@ export function equal(a, b) {
     length = keys.length
     if (length !== Object.keys(b).length) return false
     for (i = 0; i < length; i++) {
-      if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false
-      const aVal = a[keys[i]]
-      const bVal = b[keys[i]]
+      const key = keys[i] as PropertyKey
+      if (!Object.prototype.hasOwnProperty.call(b, key)) return false
+      const aVal = a[key]
+      const bVal = b[key]
       if (aVal instanceof Any) {
         return aVal.match(bVal)
       } else if (bVal instanceof Any) {
@@ -63,18 +66,4 @@ export function equal(a, b) {
 
   // true if both NaN, false otherwise
   return a !== a && b !== b
-}
-
-export class Any {
-  constructor(expectedType) {
-    this.expectedType = expectedType
-  }
-
-  match(actual) {
-    if (this.expectedType === undefined) return true
-    if (typeof this.expectedType === 'string') {
-      return typeof actual === this.expectedType
-    }
-    return actual != null && (actual.constructor === this.expectedType || actual instanceof this.expectedType)
-  }
 }

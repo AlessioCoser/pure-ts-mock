@@ -1,4 +1,5 @@
-import { Any, equal } from './equal.js'
+import { equal } from './equal'
+import type { Any } from './any'
 
 type Fn = (...args: any[]) => any
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { equal } from '../src/equal.js'
-import { any } from '../src/any.js'
+import { equal } from '../src/equal'
+import { any } from '../src'
 
 describe('equal', () => {
   describe('scalar', () => {

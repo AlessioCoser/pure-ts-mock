@@ -1,2 +1,2 @@
-export { any } from './any.js'
-export { mock, verify, when } from './mock.js'
+export { any } from './any'
+export { mock, verify, when } from './mock'
