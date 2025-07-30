@@ -148,20 +148,21 @@ Matches any value of the given type in argument matching. Useful for flexible ar
 - `any(Map)`: Matches any map
 
 You can also use matchers inside `any` for more expressive matching:
-- `any(stringIncludes(substring))`: Matches any string including the given substring.
-- `any(stringStartsWith(prefix))`: Matches any string starting with the given prefix.
-- `any(stringEndsWith(suffix))`: Matches any string ending with the given suffix.
-- `any(customMatcher)`: Matches any value according to your custom matcher logic.
+- `any.match`: Matches any value according to your custom matcher logic.
+- `any.string.includes(substring)`: Matches any string including the given substring.
+- `any.string.startsWith(prefix)`: Matches any string starting with the given prefix.
+- `any.string.endsWith(suffix)`: Matches any string ending with the given suffix.
+- `any.string.match(RegExp)`: Matches any string matching a given RegExp.
 
 ```typescript
-import { any, stringIncludes, customMatch } from 'pure-ts-mock'
+import { any } from 'pure-ts-mock'
 
 // Example: Verify call with any string including 'include'
-verify(repo).findById.toHaveBeenCalledWith(any(stringIncludes('include')))
+verify(repo).findById.toHaveBeenCalledWith(any.string.includes('include'))
 
 // Example: Custom matcher
-const numberGreaterThan5 = customMatch(actual => Number(actual) > 5)
-verify(repo).findById.toHaveBeenCalledWith(any(numberGreaterThan5))
+const anyNumberGreaterThan5 = any.match(actual => Number(actual) > 5)
+verify(repo).findById.toHaveBeenCalledWith(anyNumberGreaterThan5)
 ```
 
 This allows you to combine flexible matchers for robust and intention-revealing mocks.

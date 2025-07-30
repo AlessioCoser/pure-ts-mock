@@ -1,8 +1,8 @@
 import type { AsyncMockedMethodResult, Fn, InternalMock, Methods, Mock } from './mock'
-import type { Any } from './any'
+import type { CustomMatcher } from './matchers/custom-matcher'
 
 type ParametersWithAny<T extends (...args: any) => any> =
-  Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | Any } : never
+  Parameters<T> extends [...infer P] ? { [K in keyof P]: P[K] | CustomMatcher } : never
 
 type WhenFn<T extends Fn> = {
   (...args: ParametersWithAny<T>): {

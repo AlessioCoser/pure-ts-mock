@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { equal } from '../src/equal'
-import { any, customMatch, stringEndsWith, stringIncludes, stringStartsWith } from '../src'
+import { any } from '../src'
 
 describe('equal', () => {
   describe('scalar', () => {
@@ -187,46 +187,57 @@ describe('equal', () => {
   describe('any with string includes matcher', () => {
     it.each`
       a                                  | b                  | result   | description
-      ${any(stringIncludes('included'))} | ${'included'}      | ${true}  | ${'any string including exact match'}
-      ${any(stringIncludes('included'))} | ${'pref-included'} | ${true}  | ${'any string including with prefix'}
-      ${any(stringIncludes('included'))} | ${'included-suff'} | ${true}  | ${'any string including with suffix'}
-      ${any(stringIncludes('included'))} | ${'PincludedS'}    | ${true}  | ${'any string including with prefix and suffix'}
-      ${any(stringIncludes('included'))} | ${'incl-uded'}     | ${false} | ${'any string including not present'}
-      ${any(stringIncludes('included'))} | ${6}               | ${false} | ${'any number including string not matches'}
-      ${any(stringIncludes('included'))} | ${undefined}       | ${false} | ${'any undefined including string not matches'}
+      ${any.string.includes('included')} | ${'included'}      | ${true}  | ${'any string including exact match'}
+      ${any.string.includes('included')} | ${'pref-included'} | ${true}  | ${'any string including with prefix'}
+      ${any.string.includes('included')} | ${'included-suff'} | ${true}  | ${'any string including with suffix'}
+      ${any.string.includes('included')} | ${'PincludedS'}    | ${true}  | ${'any string including with prefix and suffix'}
+      ${any.string.includes('included')} | ${'incl-uded'}     | ${false} | ${'any string including not present'}
+      ${any.string.includes('included')} | ${6}               | ${false} | ${'any number including string not matches'}
+      ${any.string.includes('included')} | ${undefined}       | ${false} | ${'any undefined including string not matches'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
   describe('any with string startsWith matcher', () => {
     it.each`
       a                                 | b                  | result   | description
-      ${any(stringStartsWith('start'))} | ${'start'}         | ${true}  | ${'any string startsWith exact match'}
-      ${any(stringStartsWith('start'))} | ${'starting-with'} | ${true}  | ${'any string startsWith with same prefix'}
-      ${any(stringStartsWith('start'))} | ${'not-start'}     | ${false} | ${'any string startsWith with same suffix'}
-      ${any(stringStartsWith('start'))} | ${6}               | ${false} | ${'any number startsWith string not matches'}
-      ${any(stringStartsWith('start'))} | ${undefined}       | ${false} | ${'any undefined startsWith string not matches'}
+      ${any.string.startsWith('start')} | ${'start'}         | ${true}  | ${'any string startsWith exact match'}
+      ${any.string.startsWith('start')} | ${'starting-with'} | ${true}  | ${'any string startsWith with same prefix'}
+      ${any.string.startsWith('start')} | ${'not-start'}     | ${false} | ${'any string startsWith with same suffix'}
+      ${any.string.startsWith('start')} | ${6}               | ${false} | ${'any number startsWith string not matches'}
+      ${any.string.startsWith('start')} | ${undefined}       | ${false} | ${'any undefined startsWith string not matches'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
   describe('any with string endsWith matcher', () => {
     it.each`
       a                             | b            | result   | description
-      ${any(stringEndsWith('end'))} | ${'end'}     | ${true}  | ${'any string endsWith exact match'}
-      ${any(stringEndsWith('end'))} | ${'the-end'} | ${true}  | ${'any string endsWith with same suffix'}
-      ${any(stringEndsWith('end'))} | ${'ending'}  | ${false} | ${'any string endsWith with same prefix'}
-      ${any(stringEndsWith('end'))} | ${6}         | ${false} | ${'any number endsWith string not matches'}
-      ${any(stringEndsWith('end'))} | ${undefined} | ${false} | ${'any undefined startsWith string not matches'}
+      ${any.string.endsWith('end')} | ${'end'}     | ${true}  | ${'any string endsWith exact match'}
+      ${any.string.endsWith('end')} | ${'the-end'} | ${true}  | ${'any string endsWith with same suffix'}
+      ${any.string.endsWith('end')} | ${'ending'}  | ${false} | ${'any string endsWith with same prefix'}
+      ${any.string.endsWith('end')} | ${6}         | ${false} | ${'any number endsWith string not matches'}
+      ${any.string.endsWith('end')} | ${undefined} | ${false} | ${'any undefined endsWith string not matches'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
+
+  describe('any with string match matcher', () => {
+    it.each`
+      a                             | b                  | result   | description
+      ${any.string.match(/^start/)} | ${'start'}         | ${true}  | ${'any string match exact match'}
+      ${any.string.match(/^start/)} | ${'starting-with'} | ${true}  | ${'any string match with same suffix'}
+      ${any.string.match(/^start/)} | ${'not-start'}     | ${false} | ${'any string match with same prefix'}
+      ${any.string.match(/^start/)} | ${6}               | ${false} | ${'any number match string not matches'}
+      ${any.string.match(/^start/)} | ${undefined}       | ${false} | ${'any undefined match string not matches'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
   describe('any with custom matcher', () => {
-    const numberGreaterThan5 = customMatch(actual => Number(actual) > 5)
+    const anyNumberGreaterThan5 = any.match(actual => Number(actual) > 5)
 
     it.each`
-      a                          | b        | result   | description
-      ${any(numberGreaterThan5)} | ${6}     | ${true}  | ${'custom matcher matching number'}
-      ${any(numberGreaterThan5)} | ${1}     | ${false} | ${'custom matcher not matching number'}
-      ${any(numberGreaterThan5)} | ${'asd'} | ${false} | ${'custom matcher not-matching string'}
+      a                        | b        | result   | description
+      ${anyNumberGreaterThan5} | ${6}     | ${true}  | ${'custom matcher matching number'}
+      ${anyNumberGreaterThan5} | ${1}     | ${false} | ${'custom matcher not matching number'}
+      ${anyNumberGreaterThan5} | ${'asd'} | ${false} | ${'custom matcher not-matching string'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
