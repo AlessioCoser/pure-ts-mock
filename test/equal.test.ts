@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { equal } from '../src/equal'
-import { any } from '../src'
+import { any, stringContaining, CustomMatcher } from '../src'
 
 describe('equal', () => {
   describe('scalar', () => {
@@ -181,6 +181,30 @@ describe('equal', () => {
       ${any(Class1)}     | ${new Class1()}    | ${true}  | ${'any class match'}
       ${any(Class1)}     | ${new SubClass1()} | ${true}  | ${'any sub-class match'}
       ${any(Class1)}     | ${new Class2()}    | ${false} | ${'any class no-match'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
+
+  describe('any with string containing matcher', () => {
+    it.each`
+      a                                     | b                  | result   | description
+      ${any(stringContaining('included'))}  | ${'included'}      | ${true}  | ${'any string containing exact match'}
+      ${any(stringContaining('included'))}  | ${'pref-included'} | ${true}  | ${'any string containing with prefix'}
+      ${any(stringContaining('included'))}  | ${'included-suff'} | ${true}  | ${'any string containing with suffix'}
+      ${any(stringContaining('included'))}  | ${'PincludedS'}    | ${true}  | ${'any string containing with prefix and suffix'}
+      ${any(stringContaining('included'))}  | ${'incl-uded'}     | ${false}  | ${'any string containing not present'}
+      ${any(stringContaining('included'))}  | ${6}               | ${false}  | ${'any number containing string not matches'}
+      ${any(stringContaining('included'))}  | ${undefined}       | ${false}  | ${'any undefined containing string not matches'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
+  })
+
+  describe('any with custom matcher', () => {
+    const numberGreaterThan5 = new CustomMatcher((actual) => Number(actual) > 5)
+
+    it.each`
+      a                           | b         | result   | description
+      ${any(numberGreaterThan5)}  | ${6}      | ${true}  | ${'custom matcher matching number'}
+      ${any(numberGreaterThan5)}  | ${1}      | ${false} | ${'custom matcher not matching number'}
+      ${any(numberGreaterThan5)}  | ${'asd'}  | ${false}  | ${'custom matcher not-matching string'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 

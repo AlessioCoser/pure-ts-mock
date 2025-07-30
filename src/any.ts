@@ -1,4 +1,6 @@
-export const any = (expectedType?: Function | string) => new Any(expectedType)
+import { CustomMatcher } from './matchers'
+
+export const any = (expectedType?: Function | string | CustomMatcher) => new Any(expectedType)
 
 export class Any {
   constructor(private readonly expectedType: any) {}
@@ -7,6 +9,9 @@ export class Any {
     if (this.expectedType === undefined) return true
     if (typeof this.expectedType === 'string') {
       return typeof actual === this.expectedType
+    }
+    if (this.expectedType instanceof CustomMatcher) {
+      return this.expectedType.match(actual)
     }
     return actual != null && (actual.constructor === this.expectedType || actual instanceof this.expectedType)
   }

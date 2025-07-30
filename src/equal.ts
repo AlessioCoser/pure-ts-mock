@@ -1,5 +1,6 @@
 'use strict'
 // slightly modified version of https://github.com/epoberezkin/fast-deep-equal/
+
 import { Any } from './any'
 
 export function equal(a: any, b: any): boolean {

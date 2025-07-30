@@ -133,10 +133,36 @@ verify(repo).findById.toNotHaveBeenCalledWith('second')
 
 ### `any(type?)`
 Matches any value of the given type in argument matching. Useful for flexible argument matching in `when` and `verify`.
+- `any()`: Matches any value
+- `any('string')`: Matches any string
+- `any(String)`: Matches any string
+- `any('number')`: Matches any number
+- `any(Number)`: Matches any number
+- `any('boolean')`: Matches any boolean
+- `any(Boolean)`: Matches any boolean
+- `any('object')`: Matches any object
+- `any(Object)`: Matches any object
+- `any(Array)`: Matches any array
+- `any('function')`: Matches any function
+- `any(Function)`: Matches any function
+- `any(Map)`: Matches any map
+
+You can also use matchers inside `any` for more expressive matching:
+- `any(stringContaining(substring))`: Matches any string containing the given substring.
+- `any(customMatcher)`: Matches any value according to your custom matcher logic.
+
 ```typescript
-when(repo).findById(any(String)).willReturn(model)
-when(repo).findById(any()).willReturn(model)
+import { any, stringContaining, CustomMatcher } from 'pure-ts-mock'
+
+// Example: Verify call with any string containing 'include'
+verify(repo).findById.toHaveBeenCalledWith(any(stringContaining('include')))
+
+// Example: Custom matcher
+const numberGreaterThan5 = new CustomMatcher(actual => Number(actual) > 5)
+verify(repo).findById.toHaveBeenCalledWith(any(numberGreaterThan5))
 ```
+
+This allows you to combine flexible matchers for robust and intention-revealing mocks.
 
 ---
 
