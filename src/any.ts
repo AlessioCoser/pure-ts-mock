@@ -1,4 +1,4 @@
-import { CustomMatcher } from './matchers'
+import { CustomMatcher } from './matchers/custom-matcher'
 
 export const any = (expectedType?: Function | string | CustomMatcher) => new Any(expectedType)
 

@@ -1,2 +1,2 @@
-export { CustomMatcher } from './custom-matcher'
-export { stringContaining } from './string-containing'
+export { customMatch } from './custom-matcher'
+export * from './string-matchers'
