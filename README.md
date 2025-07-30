@@ -137,3 +137,35 @@ Matches any value of the given type in argument matching. Useful for flexible ar
 when(repo).findById(any(String)).willReturn(model)
 when(repo).findById(any()).willReturn(model)
 ```
+
+---
+
+### `resetMock()`
+Resets the state of a single mock instance. This clears all recorded calls and programmed behaviors for that mock.
+
+```typescript
+const repo = mock<ModelRepository>()
+when(repo).all().willResolve([])
+await repo.all()
+
+repo.resetMock()
+
+verify(repo).all.toNotHaveBeenCalled()
+```
+
+---
+
+### `resetAllMocks()`
+Resets the state of all mocks created via `mock()`. Useful for ensuring a clean slate between tests.
+
+```typescript
+const repo = mock<ModelRepository>()
+const another = mock<AnotherInterface>()
+repo.all()
+another.aMethod()
+
+resetAllMocks()
+
+verify(repo).all.toNotHaveBeenCalled()
+verify(another).aMethod.toNotHaveBeenCalled()
+```

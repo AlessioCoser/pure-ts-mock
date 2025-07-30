@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { any, mock, verify, when } from '../src'
+import { resetAllMocks } from '../src/mock'
 
 describe('mock', () => {
   it('should set a property', async () => {
@@ -246,6 +247,37 @@ describe('mock', () => {
     expect(() => mockedRepo.findById('any')).toThrow(new Error('first programmed error'))
     expect(() => mockedRepo.findById('any')).toThrow(new Error('first programmed error'))
   })
+
+  it('reset a single mock', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    when(mockedRepo).all().willResolve([])
+    await mockedRepo.all()
+    verify(mockedRepo).all.toHaveBeenCalled(1)
+
+    mockedRepo.resetMock()
+
+    verify(mockedRepo).all.toNotHaveBeenCalled()
+    expect(() => mockedRepo.all()).toThrow('No match found for method <all> called with arguments: []')
+  })
+
+
+  it('reset all mocks', async () => {
+    const mockedRepo = mock<ModelRepository>()
+    const anotherMock = mock<AnotherInterface>()
+    when(mockedRepo).all().willResolve([])
+    when(anotherMock).aMethod(any()).willReturn('')
+    await mockedRepo.all()
+    anotherMock.aMethod(1)
+    verify(mockedRepo).all.toHaveBeenCalled(1)
+    verify(anotherMock).aMethod.toHaveBeenCalled(1)
+
+    resetAllMocks()
+
+    verify(mockedRepo).all.toNotHaveBeenCalled()
+    verify(anotherMock).aMethod.toNotHaveBeenCalled()
+    expect(() => mockedRepo.all()).toThrow('No match found for method <all> called with arguments: []')
+    expect(() => anotherMock.aMethod(1)).toThrow('No match found for method <aMethod> called with arguments: [1]')
+  })
 })
 
 
@@ -276,6 +308,10 @@ interface ModelRepository {
   findById(id: string): Model | null
 
   all(): Promise<Model[]>
+}
+
+interface AnotherInterface {
+  aMethod(arg: number): string
 }
 
 interface Model {

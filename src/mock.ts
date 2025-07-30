@@ -39,7 +39,7 @@ type Calls<T> = {
   [K in Methods<T>]: Array<Parameters<Extract<T[K], Fn>>>
 }
 
-export type Mock<T extends object> = T & { __isMock: true }
+export type Mock<T extends object> = T & { resetMock: () => void }
 type InternalMock<T extends object> = Mock<T> & {
   __calls: Calls<T>
   __mockedMethods: MockedMethods<T>
@@ -47,6 +47,11 @@ type InternalMock<T extends object> = Mock<T> & {
 }
 
 type HasProperties<T> = keyof AllProperties<T> extends never ? false : true
+
+const allMocks: Mock<any>[] = []
+export function resetAllMocks() {
+  allMocks.forEach(mock => mock.resetMock())
+}
 
 export function mock<T extends object>(
   defaultProperties?: HasProperties<T> extends true ? AllProperties<T> : never
@@ -57,7 +62,14 @@ export function mock<T extends object>(
     ...(defaultProperties || {}),
     __calls,
     __mockedMethods,
-    __isMock: true,
+    resetMock() {
+      for (const key in __calls) {
+        __calls[key as keyof Calls<T>] = []
+      }
+      for (const key in __mockedMethods) {
+        __mockedMethods[key as keyof Calls<T>] = []
+      }
+    },
     __mockCall<K extends Methods<T>>(method: Methods<T>, result: MockedMethodResult<Extract<T[K], Fn>>) {
       if (!__mockedMethods[method]) {
         __mockedMethods[method] = []
@@ -65,6 +77,7 @@ export function mock<T extends object>(
       return __mockedMethods[method].push(result)
     },
   }
+  allMocks.push(internalMock as InternalMock<T>)
   return new Proxy(internalMock as InternalMock<T>, {
     get(internal, prop) {
       const method = prop as unknown as Methods<T>
@@ -88,11 +101,9 @@ export function mock<T extends object>(
 
         switch (matchingResult.type) {
           case 'return':
-            return syncExecution<T>(matchingResult)
           case 'throw':
             return syncExecution<T>(matchingResult)
           case 'resolve':
-            return asyncExecution<T>(matchingResult)
           case 'reject':
             return asyncExecution<T>(matchingResult)
         }
