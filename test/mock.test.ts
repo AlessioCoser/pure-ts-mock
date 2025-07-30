@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { any, mock, verify, when } from '../src'
-import { resetAllMocks } from '../src/mock'
+import { any, mock, verify, when, resetAllMocks } from '../src'
 
 describe('mock', () => {
   it('should set a property', async () => {

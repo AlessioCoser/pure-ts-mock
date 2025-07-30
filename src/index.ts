@@ -1,2 +1,4 @@
 export { any } from './any'
-export { mock, verify, when } from './mock'
+export { mock, resetAllMocks } from './mock'
+export { verify } from './verify'
+export { when } from './when'
