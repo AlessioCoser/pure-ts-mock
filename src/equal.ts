@@ -1,11 +1,11 @@
 'use strict'
 // slightly modified version of https://github.com/epoberezkin/fast-deep-equal/
 
-import { CustomMatcher } from './matchers/custom-matcher'
+import { Any } from './matchers/any-matcher'
 
 export function equal(a: any, b: any): boolean {
-  if (a instanceof CustomMatcher) return a.match(b)
-  if (b instanceof CustomMatcher) return b.match(a)
+  if (a instanceof Any) return a.match(b)
+  if (b instanceof Any) return b.match(a)
 
   if (a === b) return true
 
@@ -54,9 +54,9 @@ export function equal(a: any, b: any): boolean {
       if (!Object.prototype.hasOwnProperty.call(b, key)) return false
       const aVal = a[key]
       const bVal = b[key]
-      if (aVal instanceof CustomMatcher) {
+      if (aVal instanceof Any) {
         if (!aVal.match(bVal)) return false
-      } else if (bVal instanceof CustomMatcher) {
+      } else if (bVal instanceof Any) {
         if (!bVal.match(aVal)) return false
       } else if (!equal(aVal, bVal)) {
         return false

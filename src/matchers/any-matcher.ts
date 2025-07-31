@@ -1,5 +1,4 @@
-
-export class CustomMatcher<T> {
+export class Any<T> {
   private constructor(private readonly matchFn: (actual: T) => boolean) {}
 
   match(actual: any) {
@@ -7,13 +6,13 @@ export class CustomMatcher<T> {
   }
 
   static matcher<T = any>(matchFn: (actual: any) => boolean = () => true) {
-    return new CustomMatcher<T>(matchFn)
+    return new Any<T>(matchFn)
   }
 }
 
-export type DeepMatcher<T> =
+export type DeepAny<T> =
   T extends Array<infer U>
-    ? Array<DeepMatcher<U>>
+    ? Array<DeepAny<U>>
     : T extends object
-      ? { [K in keyof T]: DeepMatcher<T[K]> | CustomMatcher<T[K]> | T[K] }
-      : CustomMatcher<T> | T
+      ? { [K in keyof T]: DeepAny<T[K]> | Any<T[K]> | T[K] }
+      : Any<T> | T

@@ -1,6 +1,12 @@
 import { equal } from './equal'
+import type { DeepAny } from './matchers/any-matcher'
 
 export type Fn = (...args: any[]) => any
+
+export type ParametersWithDeepAny<T extends Fn> =
+  Parameters<T> extends [...infer P]
+    ? { [K in keyof P]: DeepAny<P[K]> }
+    : never
 
 export type Methods<T> = {
   [K in keyof T]: T[K] extends Fn ? K : never

@@ -1,13 +1,7 @@
-import type { AsyncMockedMethodResult, Fn, InternalMock, Methods, Mock } from './mock'
-import type { DeepMatcher } from './matchers/custom-matcher'
-
-type ParametersWithCustomMatcher<T extends (...args: any) => any> =
-  Parameters<T> extends [...infer P]
-    ? { [K in keyof P]: DeepMatcher<P[K]> }
-    : never
+import type { AsyncMockedMethodResult, Fn, InternalMock, Methods, Mock, ParametersWithDeepAny } from './mock'
 
 type WhenFn<T extends Fn> = {
-  (...args: ParametersWithCustomMatcher<T>): {
+  (...args: ParametersWithDeepAny<T>): {
     willReturn: (value: ReturnType<T>) => void
     willReturnOnce: (value: ReturnType<T>) => void
     willThrow: (error: Error | string) => void
@@ -17,7 +11,7 @@ type WhenFn<T extends Fn> = {
 
 type AsyncWhenOptions = { delay?: number | null }
 type AsyncWhenFn<T extends Fn> = {
-  (...args: ParametersWithCustomMatcher<T>): {
+  (...args: ParametersWithDeepAny<T>): {
     willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
     willResolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
     willReject: (error: Error | string, options?: AsyncWhenOptions) => void
