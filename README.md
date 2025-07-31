@@ -131,41 +131,61 @@ verify(repo).findById.toNotHaveBeenCalledWith('second')
 
 ---
 
-### `any(type?)`
-Matches any value of the given type in argument matching. Useful for flexible argument matching in `when` and `verify`.
-- `any()`: Matches any value
-- `any('string')`: Matches any string
-- `any(String)`: Matches any string
-- `any('number')`: Matches any number
-- `any(Number)`: Matches any number
-- `any('boolean')`: Matches any boolean
-- `any(Boolean)`: Matches any boolean
-- `any('object')`: Matches any object
-- `any(Object)`: Matches any object
-- `any(Array)`: Matches any array
-- `any('function')`: Matches any function
-- `any(Function)`: Matches any function
-- `any(Map)`: Matches any map
+## `any()` matchers
 
-You can also use matchers inside `any` for more expressive matching:
-- `any.match`: Matches any value according to your custom matcher logic.
-- `any.string.includes(substring)`: Matches any string including the given substring.
-- `any.string.startsWith(prefix)`: Matches any string starting with the given prefix.
-- `any.string.endsWith(suffix)`: Matches any string ending with the given suffix.
-- `any.string.match(RegExp)`: Matches any string matching a given RegExp.
+pure-ts-mock provides flexible matchers for arguments and object properties using the `any` API. Matchers allow you to verify calls with flexible or custom logic.
 
-```typescript
+### Built-in Matchers
+
+- `any()` — matches any value
+- `any.string()` — matches any string
+- `any.string.includes(substring)` — matches strings containing `substring`
+- `any.string.startsWith(prefix)` — matches strings starting with `prefix`
+- `any.string.endsWith(suffix)` — matches strings ending with `suffix`
+- `any.string.match(regexp)` — matches strings matching the given RegExp
+- `any.number()` — matches any number
+- `any.number.greaterThan(value)` — matches numbers greater than `value`
+- `any.number.lowerThan(value)` — matches numbers lower than `value`
+- `any.number.positive()` — matches positive numbers (>= 0)
+- `any.number.negative()` — matches negative numbers (< 0)
+- `any.boolean()` — matches any boolean
+- `any.function()` — matches any function
+- `any.object()` — matches any object (not array)
+- `any.array()` — matches any array
+- `any.map()` — matches any Map
+- `any.instanceOf(Class)` — matches any instance of the given class (including subclasses)
+
+### Custom Matchers
+You can create custom matchers by passing a predicate function to `any<T>(predicate)`:
+
+```ts
 import { any } from 'pure-ts-mock'
 
-// Example: Verify call with any string including 'include'
-verify(repo).findById.toHaveBeenCalledWith(any.string.includes('include'))
+// Type-safe custom matcher: only matches numbers > 5
+const anyMoreThanFiveMatcher = any<number>(actual => actual > 5)
 
-// Example: Custom matcher
-const anyNumberGreaterThan5 = any.match(actual => Number(actual) > 5)
-verify(repo).findById.toHaveBeenCalledWith(anyNumberGreaterThan5)
+// Usage in when/verify:
+when(mockedRepo).save({ id: any.string(), value: anyMoreThanFiveMatcher }).willResolve()
+verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreThanFiveMatcher })
 ```
 
-This allows you to combine flexible matchers for robust and intention-revealing mocks.
+- Custom matchers are type-safe: specify the type parameter so your matcher is checked for the property you use it on.
+- If you don't specify a type, your matcher will be treated as `any`.
+- You can use custom matchers for arguments, properties, and deep matching inside objects/arrays.
+
+### Deep Matching
+Matchers can be used inside objects and arrays for deep matching. This is useful for verifying complex structures with flexible rules:
+
+```ts
+const expected = {
+  id: any.string(),
+  data: {
+    value: any.number.greaterThan(10),
+    tags: [any.string(), 'fixed']
+  }
+}
+verify(mockedRepo).save.toHaveBeenCalledWith(expected)
+```
 
 ---
 
