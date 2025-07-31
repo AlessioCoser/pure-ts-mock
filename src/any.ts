@@ -10,5 +10,5 @@ export const any = Object.assign(Any.matcher, {
   object: () => Any.matcher<object>(actual => typeof actual === 'object' && actual !== null && !Array.isArray(actual)),
   array: () => Any.matcher<any[]>(actual => Array.isArray(actual)),
   map: () => Any.matcher<Map<any, any>>(actual => actual instanceof Map),
-  instanceOf: (ctor: new (...args: any[]) => any) => Any.matcher<any>(actual => actual instanceof ctor),
+  instanceOf: <T>(ctor: new (...args: any[]) => T) => Any.matcher<T>(actual => actual instanceof ctor),
 })
