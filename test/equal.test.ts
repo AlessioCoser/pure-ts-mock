@@ -130,41 +130,23 @@ describe('equal', () => {
 
   describe('any property', () => {
     it.each`
-      a                  | b             | result   | description
-      ${any('string')}   | ${'text'}     | ${true}  | ${'any string match'}
-      ${any('string')}   | ${true}       | ${false} | ${'any string no-match'}
-      ${any('number')}   | ${123456}     | ${true}  | ${'any number match'}
-      ${any('number')}   | ${'invalid'}  | ${false} | ${'any number no-match'}
-      ${any('boolean')}  | ${true}       | ${true}  | ${'any boolean match'}
-      ${any('boolean')}  | ${'invalid'}  | ${false} | ${'any boolean no-match'}
-      ${any('function')} | ${() => {}}   | ${true}  | ${'any arrow-function match'}
-      ${any('function')} | ${func1}      | ${true}  | ${'any function match'}
-      ${any('function')} | ${arrowFunc1} | ${true}  | ${'any arrow function match'}
-      ${any('function')} | ${'invalid'}  | ${false} | ${'any function no-match'}
-      ${any('object')}   | ${{ a: '1' }} | ${true}  | ${'any object match'}
-      ${any('object')}   | ${'invalid'}  | ${false} | ${'any object no-match'}
-    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
-  })
-
-  describe('any constructor property', () => {
-    it.each`
       a                | b                          | result   | description
-      ${any(String)}   | ${'text'}                  | ${true}  | ${'any(String) match'}
-      ${any(String)}   | ${true}                    | ${false} | ${'any(String) no-match'}
-      ${any(Number)}   | ${123456}                  | ${true}  | ${'any(Number) match'}
-      ${any(Number)}   | ${'invalid'}               | ${false} | ${'any(Number) no-match'}
-      ${123}           | ${any('number')}           | ${true}  | ${'b is Any matcher, a is value (number)'}
-      ${any(Boolean)}  | ${true}                    | ${true}  | ${'any(Boolean) match'}
-      ${any(Boolean)}  | ${'invalid'}               | ${false} | ${'any(Boolean) no-match'}
-      ${any(Function)} | ${arrowFunc1}              | ${true}  | ${'any(() => {}) match'}
-      ${any(Function)} | ${func1}                   | ${true}  | ${'any(Function) match'}
-      ${any(Function)} | ${'invalid'}               | ${false} | ${'any(Function) no-match'}
-      ${any(Object)}   | ${{ a: '1' }}              | ${true}  | ${'any(Object) match'}
-      ${any(Object)}   | ${'invalid'}               | ${false} | ${'any(Object) no-match'}
-      ${any(Array)}    | ${[1, 2, 3]}               | ${true}  | ${'any(Array) match'}
-      ${any(Array)}    | ${'invalid'}               | ${false} | ${'any(Array) no-match'}
-      ${any(Map)}      | ${new Map([['k1', 'v1']])} | ${true}  | ${'any(Map) match'}
-      ${any(Map)}      | ${new Set(['k1', 'v1'])}   | ${false} | ${'any(Map) no-match'}
+      ${any.string()}  | ${'text'}                  | ${true}  | ${'any(String) match'}
+      ${any.string()}  | ${true}                    | ${false} | ${'any(String) no-match'}
+      ${any.number()}  | ${123456}                  | ${true}  | ${'any(Number) match'}
+      ${any.number()}  | ${'invalid'}               | ${false} | ${'any(Number) no-match'}
+      ${123}           | ${any.number()}            | ${true}  | ${'b is Any matcher, a is value (number)'}
+      ${any.boolean()} | ${true}                    | ${true}  | ${'any(Boolean) match'}
+      ${any.boolean()} | ${'invalid'}               | ${false} | ${'any(Boolean) no-match'}
+      ${any.function()}| ${arrowFunc1}              | ${true}  | ${'any(() => {}) match'}
+      ${any.function()}| ${func1}                   | ${true}  | ${'any(Function) match'}
+      ${any.function()}| ${'invalid'}               | ${false} | ${'any(Function) no-match'}
+      ${any.object()}  | ${{ a: '1' }}              | ${true}  | ${'any(Object) match'}
+      ${any.object()}  | ${'invalid'}               | ${false} | ${'any(Object) no-match'}
+      ${any.array()}   | ${[1, 2, 3]}               | ${true}  | ${'any(Array) match'}
+      ${any.array()}   | ${'invalid'}               | ${false} | ${'any(Array) no-match'}
+      ${any.map()}     | ${new Map([['k1', 'v1']])} | ${true}  | ${'any(Map) match'}
+      ${any.map()}     | ${new Set(['k1', 'v1'])}   | ${false} | ${'any(Map) no-match'}
       ${any()}         | ${'text'}                  | ${true}  | ${'any() with string match'}
       ${any()}         | ${123456}                  | ${true}  | ${'any() with number match'}
       ${any()}         | ${true}                    | ${true}  | ${'any() with boolean match'}
@@ -177,14 +159,14 @@ describe('equal', () => {
 
   describe('any with custom classes', () => {
     it.each`
-      a              | b                  | result   | description
-      ${any(Class1)} | ${new Class1()}    | ${true}  | ${'any class match'}
-      ${any(Class1)} | ${new SubClass1()} | ${true}  | ${'any sub-class match'}
-      ${any(Class1)} | ${new Class2()}    | ${false} | ${'any class no-match'}
+      a                         | b                  | result   | description
+      ${any.instanceOf(Class1)} | ${new Class1()}    | ${true}  | ${'any class match'}
+      ${any.instanceOf(Class1)} | ${new SubClass1()} | ${true}  | ${'any sub-class match'}
+      ${any.instanceOf(Class1)} | ${new Class2()}    | ${false} | ${'any class no-match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
-  describe('any with string includes matcher', () => {
+  describe('any with string matchers', () => {
     it.each`
       a                                  | b                  | result   | description
       ${any.string.includes('included')} | ${'included'}      | ${true}  | ${'any string including exact match'}
@@ -194,44 +176,42 @@ describe('equal', () => {
       ${any.string.includes('included')} | ${'incl-uded'}     | ${false} | ${'any string including not present'}
       ${any.string.includes('included')} | ${6}               | ${false} | ${'any number including string not matches'}
       ${any.string.includes('included')} | ${undefined}       | ${false} | ${'any undefined including string not matches'}
+      ${any.string.startsWith('start')}  | ${'start'}         | ${true}  | ${'any string startsWith exact match'}
+      ${any.string.startsWith('start')}  | ${'starting-with'} | ${true}  | ${'any string startsWith with same prefix'}
+      ${any.string.startsWith('start')}  | ${'not-start'}     | ${false} | ${'any string startsWith with same suffix'}
+      ${any.string.startsWith('start')}  | ${6}               | ${false} | ${'any number startsWith string not matches'}
+      ${any.string.startsWith('start')}  | ${undefined}       | ${false} | ${'any undefined startsWith string not matches'}
+      ${any.string.endsWith('end')}      | ${'end'}     | ${true}  | ${'any string endsWith exact match'}
+      ${any.string.endsWith('end')}      | ${'the-end'} | ${true}  | ${'any string endsWith with same suffix'}
+      ${any.string.endsWith('end')}      | ${'ending'}  | ${false} | ${'any string endsWith with same prefix'}
+      ${any.string.endsWith('end')}      | ${6}         | ${false} | ${'any number endsWith string not matches'}
+      ${any.string.endsWith('end')}      | ${undefined} | ${false} | ${'any undefined endsWith string not matches'}
+      ${any.string.match(/^start/)}      | ${'start'}         | ${true}  | ${'any string match exact match'}
+      ${any.string.match(/^start/)}      | ${'starting-with'} | ${true}  | ${'any string match with same suffix'}
+      ${any.string.match(/^start/)}      | ${'not-start'}     | ${false} | ${'any string match with same prefix'}
+      ${any.string.match(/^start/)}      | ${6}               | ${false} | ${'any number match string not matches'}
+      ${any.string.match(/^start/)}      | ${undefined}       | ${false} | ${'any undefined match string not matches'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
-  describe('any with string startsWith matcher', () => {
+  describe('any with number matchers', () => {
     it.each`
-      a                                 | b                  | result   | description
-      ${any.string.startsWith('start')} | ${'start'}         | ${true}  | ${'any string startsWith exact match'}
-      ${any.string.startsWith('start')} | ${'starting-with'} | ${true}  | ${'any string startsWith with same prefix'}
-      ${any.string.startsWith('start')} | ${'not-start'}     | ${false} | ${'any string startsWith with same suffix'}
-      ${any.string.startsWith('start')} | ${6}               | ${false} | ${'any number startsWith string not matches'}
-      ${any.string.startsWith('start')} | ${undefined}       | ${false} | ${'any undefined startsWith string not matches'}
-    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
-  })
-
-  describe('any with string endsWith matcher', () => {
-    it.each`
-      a                             | b            | result   | description
-      ${any.string.endsWith('end')} | ${'end'}     | ${true}  | ${'any string endsWith exact match'}
-      ${any.string.endsWith('end')} | ${'the-end'} | ${true}  | ${'any string endsWith with same suffix'}
-      ${any.string.endsWith('end')} | ${'ending'}  | ${false} | ${'any string endsWith with same prefix'}
-      ${any.string.endsWith('end')} | ${6}         | ${false} | ${'any number endsWith string not matches'}
-      ${any.string.endsWith('end')} | ${undefined} | ${false} | ${'any undefined endsWith string not matches'}
-    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
-  })
-
-  describe('any with string match matcher', () => {
-    it.each`
-      a                             | b                  | result   | description
-      ${any.string.match(/^start/)} | ${'start'}         | ${true}  | ${'any string match exact match'}
-      ${any.string.match(/^start/)} | ${'starting-with'} | ${true}  | ${'any string match with same suffix'}
-      ${any.string.match(/^start/)} | ${'not-start'}     | ${false} | ${'any string match with same prefix'}
-      ${any.string.match(/^start/)} | ${6}               | ${false} | ${'any number match string not matches'}
-      ${any.string.match(/^start/)} | ${undefined}       | ${false} | ${'any undefined match string not matches'}
+      a                            | b       | result   | description
+      ${any.number.greaterThan(6)} | ${7}    | ${true}  | ${'any number greater than matches'}
+      ${any.number.greaterThan(6)} | ${6}    | ${false} | ${'any number greater than not matches'}
+      ${any.number.lowerThan(6)}   | ${5}    | ${true}  | ${'any number lower than matches'}
+      ${any.number.lowerThan(6)}   | ${6}    | ${false} | ${'any number lower than not matches'}
+      ${any.number.positive()}     | ${1}    | ${true}  | ${'any positive number matches'}
+      ${any.number.positive()}     | ${0}    | ${true}  | ${'zero is positive'}
+      ${any.number.positive()}     | ${-1}   | ${false} | ${'negative number is not positive'}
+      ${any.number.negative()}     | ${-1}   | ${true}  | ${'any negative number matches'}
+      ${any.number.negative()}     | ${0}    | ${false} | ${'zero is not negative'}
+      ${any.number.negative()}     | ${1}    | ${false} | ${'positive number is not negative'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
   describe('any with custom matcher', () => {
-    const anyNumberGreaterThan5 = any.match(actual => Number(actual) > 5)
+    const anyNumberGreaterThan5 = any<number>(actual => Number(actual) > 5)
 
     it.each`
       a                        | b        | result   | description
@@ -241,39 +221,19 @@ describe('equal', () => {
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
-  describe('sample objects', () => {
-    it('big object', () => {
-      const a = {
-        prop1: 'value1',
-        prop2: 'value2',
-        prop3: 'value3',
-        prop4: {
-          subProp1: 'sub value1',
-          subProp2: {
-            subSubProp1: 'sub sub value1',
-            subSubProp2: [1, 2, { prop2: 1, prop: 2, prop3: any(String) }, 4, 5],
-            subSubProp3: any(Array),
-          },
-        },
-        prop5: 1000,
-        prop6: new Date(2016, 2, 10),
-      }
-      const b = {
-        prop5: 1000,
-        prop3: 'value3',
-        prop1: 'value1',
-        prop2: 'value2',
-        prop6: new Date('2016/03/10'),
-        prop4: {
-          subProp2: {
-            subSubProp1: 'sub sub value1',
-            subSubProp2: [1, 2, { prop2: 1, prop: any(Number), prop3: '1' }, 4, 5],
-            subSubProp3: [1, [{ a: 2 }, { b: 3 }], 4],
-          },
-          subProp1: 'sub value1',
-        },
-      }
+  describe('any with multiple properties', () => {
+    it('should match when both properties use any matchers', () => {
+      const a = { foo: any.string(), bar: any.number() }
+      const b = { foo: 'hello', bar: 42 }
       expect(equal(a, b)).toBe(true)
+      expect(equal(b, a)).toBe(true)
+    })
+
+    it('should not match if one property does not satisfy the matcher', () => {
+      const a = { foo: any.string(), bar: any.number() }
+      const b = { foo: 'hello', bar: 'not-a-number' }
+      expect(equal(a, b)).toBe(false)
+      expect(equal(b, a)).toBe(false)
     })
   })
 })

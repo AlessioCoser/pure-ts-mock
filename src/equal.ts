@@ -55,9 +55,9 @@ export function equal(a: any, b: any): boolean {
       const aVal = a[key]
       const bVal = b[key]
       if (aVal instanceof CustomMatcher) {
-        return aVal.match(bVal)
+        if (!aVal.match(bVal)) return false
       } else if (bVal instanceof CustomMatcher) {
-        return bVal.match(aVal)
+        if (!bVal.match(aVal)) return false
       } else if (!equal(aVal, bVal)) {
         return false
       }

@@ -259,7 +259,6 @@ describe('mock', () => {
     expect(() => mockedRepo.all()).toThrow('No match found for method <all> called with arguments: []')
   })
 
-
   it('reset all mocks', async () => {
     const mockedRepo = mock<ModelRepository>()
     const anotherMock = mock<AnotherInterface>()
@@ -278,7 +277,6 @@ describe('mock', () => {
     expect(() => anotherMock.aMethod(1)).toThrow('No match found for method <aMethod> called with arguments: [1]')
   })
 })
-
 
 interface User {
   id: string

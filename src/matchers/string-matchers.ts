@@ -1,8 +1,10 @@
-import { customMatch } from './custom-matcher'
+import { CustomMatcher } from './custom-matcher'
 
-export const stringMatchers = {
-  includes: (substring: string) => customMatch(actual => String(actual).includes(substring)),
-  startsWith: (prefix: string) => customMatch(actual => String(actual).startsWith(prefix)),
-  endsWith: (prefix: string) => customMatch(actual => String(actual).endsWith(prefix)),
-  match: (pattern: RegExp) => customMatch(actual => pattern.test(String(actual)))
-}
+const anyStringMatcher = () => CustomMatcher.matcher<string>(actual => typeof actual === 'string')
+
+export const stringMatchers = Object.assign(anyStringMatcher, {
+  includes: (substring: string) => CustomMatcher.matcher<string>(actual => String(actual).includes(substring)),
+  startsWith: (prefix: string) => CustomMatcher.matcher<string>(actual => String(actual).startsWith(prefix)),
+  endsWith: (prefix: string) => CustomMatcher.matcher<string>(actual => String(actual).endsWith(prefix)),
+  match: (pattern: RegExp) => CustomMatcher.matcher<string>(actual => pattern.test(String(actual))),
+})
