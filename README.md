@@ -8,8 +8,22 @@
 
 **pure-ts-mock** is a minimalist, type-safe mocking library for TypeScript. It’s expressive, framework-agnostic, and has zero dependencies. Mock interfaces and classes with ease: no boilerplate, no fuss.
 
+## Table of Contents
+- [Why pure-ts-mock?](#why-pure-ts-mock)
+- [Philosophy](#philosophy)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+  - [`mock<T>(defaultProperties?)`](#mocktdefaultproperties)
+  - [`when(mock).method(...args)`](#whenmockmethodargs)
+  - [`verify(mock).method`](#verifymockmethod)
+  - [`any()` matchers](#any-matchers)
+  - [`resetAllMocks()`](#resetallmocks)
+- [Return-Once by Default: How it differs from other mocking libraries](#return-once-by-default-how-it-differs-from-other-mocking-libraries)
+
+
 ## Why pure-ts-mock?
-- ✨ **Simple**: Just `mock`, `when`, `verify` and `any` keywords.
+- ✨ **Simple**: Just `mock`, `when`, `verify`, `any` and `resetAllMocks` keywords.
 - 🧑‍💻 **Expressive**: Readable, intention-revealing API.
 - 🛡 **Type-Safe**: Type-checked `mock`, `when`, `verify` with their `methods` and `arguments`.
 - 🔌 **Framework-Agnostic**: Works with any test runner.
@@ -189,23 +203,10 @@ verify(mockedRepo).save.toHaveBeenCalledWith(expected)
 
 ---
 
-### `resetMock()`
-Resets the state of a single mock instance. This clears all recorded calls and programmed behaviors for that mock.
-
-```typescript
-const repo = mock<ModelRepository>()
-when(repo).all().willResolve([])
-await repo.all()
-
-repo.resetMock()
-
-verify(repo).all.toNotHaveBeenCalled()
-```
-
----
-
 ### `resetAllMocks()`
 Resets the state of all mocks created via `mock()`. Useful for ensuring a clean slate between tests.
+
+It internally calls the public method `mock.resetMock()` on each mock instance created by `mock()`.
 
 ```typescript
 const repo = mock<ModelRepository>()
@@ -217,6 +218,18 @@ resetAllMocks()
 
 verify(repo).all.toNotHaveBeenCalled()
 verify(another).aMethod.toNotHaveBeenCalled()
+```
+
+If you want to reset a single mock, use `resetMock()` on that specific mock instance instead.
+
+```typescript
+const repo = mock<ModelRepository>()
+when(repo).all().willResolve([])
+await repo.all()
+
+repo.resetMock()
+
+verify(repo).all.toNotHaveBeenCalled()
 ```
 
 ## Return-Once by Default: How it differs from other mocking libraries
