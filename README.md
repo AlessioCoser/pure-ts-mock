@@ -77,38 +77,38 @@ const repoWithDefaults = mock<ModelRepository>({ property: 'default-value' })
 ### `when(mock).method(...args)`
 Programs the behavior of a mocked method for specific arguments. The returned object exposes:
 - For sync methods:
-  - `willReturn(value)` — always returns the specified value for matching arguments
-  - `willReturnOnce(value)` — returns the specified value **only once** for matching arguments, then falls back to previous behavior
-  - `willThrow(error)` — always throws the specified error for matching arguments
-  - `willThrowOnce(error)` — throws the specified error **only once** for matching arguments, then falls back to previous behavior
+  - `willReturn(value)` — returns the specified value **only once** for matching arguments, then falls back to previous behavior
+  - `willAlwaysReturn(value)` — always returns the specified value for matching arguments
+  - `willThrow(error)` — throws the specified error **only once** for matching arguments, then falls back to previous behavior
+  - `willAlwaysThrow(error)` — always throws the specified error for matching arguments
 - For async methods:
-  - `willResolve(value, options?)` — always resolves with the specified value (optionally delayed) for matching arguments
-  - `willResolveOnce(value, options?)` — resolves with the specified value **only once** (optionally delayed), then falls back to previous behavior
-  - `willReject(error, options?)` — always rejects with the specified error (optionally delayed) for matching arguments
-  - `willRejectOnce(error, options?)` — rejects with the specified error **only once** (optionally delayed), then falls back to previous behavior
+  - `willResolve(value, options?)` — resolves with the specified value **only once** (optionally delayed), then falls back to previous behavior
+  - `willAlwaysResolve(value, options?)` — always resolves with the specified value (optionally delayed) for matching arguments
+  - `willReject(error, options?)` — rejects with the specified error **only once** (optionally delayed), then falls back to previous behavior
+  - `willAlwaysReject(error, options?)` — always rejects with the specified error (optionally delayed) for matching arguments
 
 #### Behavior explanation
-- The "Once" variants (`willReturnOnce`, `willThrowOnce`, `willResolveOnce`, `willRejectOnce`) only affect the **next matching call**. After being used once, the behavior is removed and subsequent calls use the previous (non-once) behavior, if any.
-- The original variants (`willReturn`, `willThrow`, `willResolve`, `willReject`) persist for all matching calls until overridden.
+- The original variants (`willReturn`, `willThrow`, `willResolve`, `willReject`) only affect the **next matching call**. After being used once, the behavior is removed and later calls use the previous behavior, if any.
+- The "Always" variants (`willAlwaysReturn`, `willAlwaysThrow`, `willAlwaysResolve`, `willAlwaysReject`) persist for all matching calls until overridden.
 - If multiple behaviors are programmed for the same method/arguments, the **last defined behavior takes precedence**.
 
 #### Usage Examples
 ```typescript
 // Sync methods
-when(repo).findById('first').willReturn(model) // always returns model
-when(repo).findById('first').willReturnOnce(model) // returns model only once, then falls back
-when(repo).findById('second').willThrow(new Error('Not found')) // always throws
-when(repo).findById('second').willThrowOnce(new Error('Not found')) // throws only once, then falls back
+when(repo).findById('first').willReturn(model) // returns model only once, then falls back
+when(repo).findById('first').willAlwaysReturn(model) // always returns model
+when(repo).findById('second').willThrow(new Error('Not found')) // throws only once, then falls back
+when(repo).findById('second').willAlwaysThrow(new Error('Not found')) // always throws
 
 // Async methods
-when(repo).all().willResolve([]) // always resolves to []
-when(repo).all().willResolveOnce([]) // resolves to [] only once, then falls back
-when(repo).all().willReject(new Error('Failed'), { delay: 200 }) // always rejects
-when(repo).all().willRejectOnce(new Error('Failed'), { delay: 200 }) // rejects only once, then falls back
+when(repo).all().willAlwaysResolve([]) // always resolves to []
+when(repo).all().willResolve([]) // resolves to [] only once, then falls back
+when(repo).all().willAlwaysReject(new Error('Failed'), { delay: 200 }) // always rejects
+when(repo).all().willReject(new Error('Failed'), { delay: 200 }) // rejects only once, then falls back
 
 // Using any() matcher
 when(repo).findById(any()).willReturn(model)
-when(repo).findById(any()).willReturnOnce(model)
+when(repo).findById(any()).willAlwaysReturn(model)
 ```
 
 ---
