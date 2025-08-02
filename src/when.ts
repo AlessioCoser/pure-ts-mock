@@ -2,22 +2,58 @@ import type { AsyncMockedMethodResult, Fn, InternalMock, Methods, Mock, Paramete
 
 type WhenFn<T extends Fn> = {
   (...args: ParametersWithDeepAny<T>): {
+    /**
+     * Programs the method to return the given value every time for these arguments.
+     */
     willReturn: (value: ReturnType<T>) => void
+    /**
+     * Programs the method to return the given value only once for these arguments.
+     * After one call, the behavior is removed.
+     */
     willReturnOnce: (value: ReturnType<T>) => void
+    /**
+     * Programs the method to throw the given error every time for these arguments.
+     */
     willThrow: (error: Error | string) => void
+    /**
+     * Programs the method to throw the given error only once for these arguments.
+     * After one call, the behavior is removed.
+     */
     willThrowOnce: (error: Error | string) => void
   }
 }
 
-type AsyncWhenOptions = { delay?: number | null }
+/**
+ * Async version of WhenFn for methods returning promises.
+ */
 type AsyncWhenFn<T extends Fn> = {
   (...args: ParametersWithDeepAny<T>): {
+    /**
+     * Programs the async method to resolve with the given value every time for these arguments.
+     * Optionally, specify a delay in milliseconds.
+     */
     willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    /**
+     * Programs the async method to resolve with the given value only once for these arguments.
+     * After one call, the behavior is removed.
+     * Optionally, specify a delay in milliseconds.
+     */
     willResolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    /**
+     * Programs the async method to reject with the given error every time for these arguments.
+     * Optionally, specify a delay in milliseconds.
+     */
     willReject: (error: Error | string, options?: AsyncWhenOptions) => void
+    /**
+     * Programs the async method to reject with the given error only once for these arguments.
+     * After one call, the behavior is removed.
+     * Optionally, specify a delay in milliseconds.
+     */
     willRejectOnce: (error: Error | string, options?: AsyncWhenOptions) => void
   }
 }
+
+type AsyncWhenOptions = { delay?: number | null }
 
 type WhenFnSelector<T extends Fn> = ReturnType<T> extends Promise<any> ? AsyncWhenFn<T> : WhenFn<T>
 
@@ -25,6 +61,14 @@ type When<T extends object> = {
   [K in Methods<T>]: WhenFnSelector<Extract<T[K], Fn>>
 }
 
+/**
+ * Programs the behavior of a mocked method for specific arguments.
+ * Use the returned methods to specify what the mock should do when called with those arguments.
+ *
+ * @example
+ * when(mockedRepo).findById('id').willReturn(model)
+ * when(mockedRepo).findById('id').willThrow(new Error('Not found'))
+ */
 export const when = <T extends object>(mock: Mock<T>) => {
   const _mock = mock as InternalMock<T>
   return new Proxy(

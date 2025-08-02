@@ -48,6 +48,10 @@ type HasProperties<T> = keyof AllProperties<T> extends never ? false : true
 
 const allMocks: Mock<any>[] = []
 
+/**
+ * Resets all mocks created by pure-ts-mock, clearing all calls and behaviors.
+ * Use this to ensure a clean slate between tests.
+ */
 export function resetAllMocks() {
   allMocks.forEach(mock => mock.resetMock())
 }
@@ -59,6 +63,11 @@ export type InternalMock<T extends object> = Mock<T> & {
   __mockCall<K extends Methods<T>>(method: K, result: MockedMethodResult<Extract<T[K], Fn>>): void
 }
 
+/**
+ * Creates a mock object for the given interface or class.
+ * Optionally, provide default property values for non-method fields.
+ * The returned mock tracks calls and allows you to program method behaviors.
+ */
 export function mock<T extends object>(
   defaultProperties?: HasProperties<T> extends true ? AllProperties<T> : never
 ): Mock<T> {
