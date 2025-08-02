@@ -129,24 +129,28 @@ describe('equal', () => {
   })
 
   describe('any property', () => {
+    const validUuid = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
+
     it.each`
       a                | b                          | result   | description
-      ${any.string()}  | ${'text'}                  | ${true}  | ${'any(String) match'}
-      ${any.string()}  | ${true}                    | ${false} | ${'any(String) no-match'}
-      ${any.number()}  | ${123456}                  | ${true}  | ${'any(Number) match'}
-      ${any.number()}  | ${'invalid'}               | ${false} | ${'any(Number) no-match'}
-      ${123}           | ${any.number()}            | ${true}  | ${'b is Any matcher, a is value (number)'}
-      ${any.boolean()} | ${true}                    | ${true}  | ${'any(Boolean) match'}
-      ${any.boolean()} | ${'invalid'}               | ${false} | ${'any(Boolean) no-match'}
-      ${any.function()}| ${arrowFunc1}              | ${true}  | ${'any(() => {}) match'}
-      ${any.function()}| ${func1}                   | ${true}  | ${'any(Function) match'}
-      ${any.function()}| ${'invalid'}               | ${false} | ${'any(Function) no-match'}
-      ${any.object()}  | ${{ a: '1' }}              | ${true}  | ${'any(Object) match'}
-      ${any.object()}  | ${'invalid'}               | ${false} | ${'any(Object) no-match'}
-      ${any.array()}   | ${[1, 2, 3]}               | ${true}  | ${'any(Array) match'}
-      ${any.array()}   | ${'invalid'}               | ${false} | ${'any(Array) no-match'}
-      ${any.map()}     | ${new Map([['k1', 'v1']])} | ${true}  | ${'any(Map) match'}
-      ${any.map()}     | ${new Set(['k1', 'v1'])}   | ${false} | ${'any(Map) no-match'}
+      ${any.string()}  | ${'text'}                  | ${true}  | ${'any.string() match'}
+      ${any.string()}  | ${true}                    | ${false} | ${'any.string() no-match'}
+      ${any.number()}  | ${123456}                  | ${true}  | ${'any.number() match'}
+      ${any.number()}  | ${'invalid'}               | ${false} | ${'any.number() no-match'}
+      ${123}           | ${any.number()}            | ${true}  | ${'b is any.number(), a is number value'}
+      ${any.boolean()} | ${true}                    | ${true}  | ${'any.boolean() match'}
+      ${any.boolean()} | ${'invalid'}               | ${false} | ${'any.boolean() no-match'}
+      ${any.function()}| ${arrowFunc1}              | ${true}  | ${'any.function() with () => {} match'}
+      ${any.function()}| ${func1}                   | ${true}  | ${'any.function() with fn match'}
+      ${any.function()}| ${'invalid'}               | ${false} | ${'any.function() no-match'}
+      ${any.object()}  | ${{ a: '1' }}              | ${true}  | ${'any.object() match'}
+      ${any.object()}  | ${'invalid'}               | ${false} | ${'any.object() no-match'}
+      ${any.array()}   | ${[1, 2, 3]}               | ${true}  | ${'any.array() match'}
+      ${any.array()}   | ${'invalid'}               | ${false} | ${'any.array() no-match'}
+      ${any.map()}     | ${new Map([['k1', 'v1']])} | ${true}  | ${'any.map() match'}
+      ${any.map()}     | ${new Set(['k1', 'v1'])}   | ${false} | ${'any.map() no-match'}
+      ${any.uuid()}    | ${validUuid}               | ${true}  | ${'any.uuid() match'}
+      ${any.uuid()}    | ${'non-uuid'}              | ${false} | ${'any.uuid() no-match'}
       ${any()}         | ${'text'}                  | ${true}  | ${'any() with string match'}
       ${any()}         | ${123456}                  | ${true}  | ${'any() with number match'}
       ${any()}         | ${true}                    | ${true}  | ${'any() with boolean match'}
@@ -154,6 +158,8 @@ describe('equal', () => {
       ${any()}         | ${[1, 2]}                  | ${true}  | ${'any() with array match'}
       ${any()}         | ${func1}                   | ${true}  | ${'any() with function match'}
       ${any()}         | ${arrowFunc1}              | ${true}  | ${'any() with arrow-function match'}
+      ${any()}         | ${null}                    | ${true}  | ${'any() with null match'}
+      ${any()}         | ${undefined}               | ${true}  | ${'any() with undefined match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 

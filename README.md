@@ -168,6 +168,7 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.array()` — matches any array
 - `any.map()` — matches any Map
 - `any.instanceOf(Class)` — matches any instance of the given class (including subclasses)
+- `any.uuid()` — matches any uuid-like string
 
 #### Custom Matchers
 You can create custom matchers by passing a predicate function to `any<T>(predicate)`:
@@ -177,10 +178,13 @@ import { any } from 'pure-ts-mock'
 
 // Type-safe custom matcher: only matches numbers > 5
 const anyMoreThanFiveMatcher = any<number>(actual => actual > 5)
+// Type-safe custom matcher fn: only matches numbers > x
+const anyMoreThanXMatcher = (x: number) => any<number>(actual => actual > x)
 
 // Usage in when/verify:
 when(mockedRepo).save({ id: any.string(), value: anyMoreThanFiveMatcher }).willResolve()
 verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreThanFiveMatcher })
+verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreThanXMatcher(5) })
 ```
 
 - Custom matchers are type-safe: specify the type parameter so your matcher is checked for the property you use it on.

@@ -4,18 +4,23 @@ import { numberMatchers } from './matchers/number-matchers'
 
 /**
  * Provides flexible matchers for arguments and object properties in mocks and verifications.
- * Use built-in matchers like any(), any.string(), any.number(), or create custom matchers.
- * @example usage in mock method setup
- * when(mockedRepo).findById(any()).willReturn(model)
- * @example usage in verification
- * verify(mockedRepo).findById.toHaveBeenCalledWith(any.string())
- * @example custom matcher
- * const anyBetweenMatcher = (a: number, b: number) => any<number>(actual => actual > a && actual < b)
+ * Use built-in matchers, or create a custom one.
+ * @example
+ * any()
+ * any.string() // other matchers available on any.string.
+ * any.number() // other matchers available on any.number.
+ * any.boolean()
+ * any.function()
+ * any.object()
+ * any.array()
+ * any.map()
+ * any.instanceOf(MyClass)
+ * any.uuid()
+ * any<number>(actual => actual > 5) // custom matcher "greater than 5"
  */
 export const any = Object.assign(Any.matcher, {
   /**
    * Matcher for any string value.
-   * Includes matchers for any string, substring, prefix, suffix, and others.
    *
    * @example
    * any.string()
@@ -27,7 +32,6 @@ export const any = Object.assign(Any.matcher, {
   string: stringMatchers,
   /**
    * Matcher for any number value.
-   * Includes matchers for any number, any positive, any negative and others.
    *
    * @example
    * any.number()
@@ -62,4 +66,15 @@ export const any = Object.assign(Any.matcher, {
    * @param ctor The constructor to match against.
    */
   instanceOf: <T>(ctor: new (...args: any[]) => T) => Any.matcher<T>(actual => actual instanceof ctor),
+  /**
+   * Matches any string that is a valid UUID (version 1-5).
+   * @example
+   * any.uuid()
+   */
+  uuid: () =>
+    Any.matcher<string>(actual =>
+      new RegExp(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/).test(
+        String(actual)
+      )
+    ),
 })
