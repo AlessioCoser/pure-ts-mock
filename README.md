@@ -19,7 +19,7 @@
 
 **pure-ts-mock** is built for simplicity and productivity. As you write tests, your editor instantly guides you with smart auto-suggestions: showing only the right methods and arguments for your types. You stay focused on your test logic, not the API. **Every test becomes effortless and error-free.**
 
-> If you’re looking for more, use it as a chance to refactor: make your communication with mocked dependencies simpler, and watch your software become more resilient and easier to maintain.
+> If you’re looking for more, use it as a chance to refactor: simplify your communication with mocked dependencies, and watch your software become more resilient and easier to maintain.
 
 If you still think a feature could be useful, please create an issue [here](https://github.com/AlessioCoser/pure-ts-mock/issues) or open a PR. The project is free, open source, and any contribution is welcomed.
 
@@ -131,11 +131,11 @@ verify(repo).findById.toNotHaveBeenCalledWith('second')
 
 ---
 
-## `any()` matchers
+### `any()` matchers
 
 pure-ts-mock provides flexible matchers for arguments and object properties using the `any` API. Matchers allow you to verify calls with flexible or custom logic.
 
-### Built-in Matchers
+#### Built-in Matchers
 
 - `any()` — matches any value
 - `any.string()` — matches any string
@@ -155,7 +155,7 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.map()` — matches any Map
 - `any.instanceOf(Class)` — matches any instance of the given class (including subclasses)
 
-### Custom Matchers
+#### Custom Matchers
 You can create custom matchers by passing a predicate function to `any<T>(predicate)`:
 
 ```ts
@@ -173,7 +173,7 @@ verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreT
 - If you don't specify a type, your matcher will be treated as `any`.
 - You can use custom matchers for arguments, properties, and deep matching inside objects/arrays.
 
-### Deep Matching
+#### Deep Matching
 Matchers can be used inside objects and arrays for deep matching. This is useful for verifying complex structures with flexible rules:
 
 ```ts
@@ -218,3 +218,20 @@ resetAllMocks()
 verify(repo).all.toNotHaveBeenCalled()
 verify(another).aMethod.toNotHaveBeenCalled()
 ```
+
+## Return-Once by Default: How it differs from other mocking libraries
+
+> Mock interactions, not just values. Be explicit: let your tests guide better design.
+
+**pure-ts-mock flips the default:**
+- `willReturn` (and similar methods) returns the value **once** (like `willReturnOnce` in other libraries).
+- `willAlwaysReturn` (and similar methods) returns the same value **every time**.
+
+While most libraries default to `always return`, pure-ts-mock defaults to `just once`.
+
+This explicit approach helps you:
+- **reflect real interactions**, and expose temporal dependencies in your code
+- **reveal hidden dependencies** on repeated values
+- **spot refactoring opportunities:** if you need many different responses for the same mock, your code may be too complex or tightly coupled. This clarity helps you identify where to simplify or refactor.
+
+When you truly intend to return the same value every time, you can still use `willAlwaysReturn` (or similar methods).
