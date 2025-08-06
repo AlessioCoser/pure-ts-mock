@@ -1,7 +1,7 @@
 {
   "name": "pure-ts-mock",
   "type": "module",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "description": "A minimalist, type-safe mocking library for TypeScript. Expressive, framework-agnostic, and dependency-free.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
