@@ -5,21 +5,21 @@ type WhenFn<T extends Fn> = {
     /**
      * Programs the method to return the given value every time for these arguments.
      */
-    willAlwaysReturn: (value: ReturnType<T>) => void
+    alwaysReturn: (value: ReturnType<T>) => void
     /**
      * Programs the method to return the given value only once for these arguments.
      * After one call, the behavior is removed.
      */
-    willReturn: (value: ReturnType<T>) => void
+    returnOnce: (value: ReturnType<T>) => void
     /**
      * Programs the method to throw the given error every time for these arguments.
      */
-    willAlwaysThrow: (error: Error | string) => void
+    alwaysThrow: (error: Error | string) => void
     /**
      * Programs the method to throw the given error only once for these arguments.
      * After one call, the behavior is removed.
      */
-    willThrow: (error: Error | string) => void
+    throwOnce: (error: Error | string) => void
   }
 }
 
@@ -32,24 +32,24 @@ type AsyncWhenFn<T extends Fn> = {
      * Programs the async method to resolve with the given value every time for these arguments.
      * Optionally, specify a delay in milliseconds.
      */
-    willAlwaysResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    alwaysResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
     /**
      * Programs the async method to resolve with the given value only once for these arguments.
      * After one call, the behavior is removed.
      * Optionally, specify a delay in milliseconds.
      */
-    willResolve: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
+    resolveOnce: (value: Awaited<ReturnType<T>>, options?: AsyncWhenOptions) => void
     /**
      * Programs the async method to reject with the given error every time for these arguments.
      * Optionally, specify a delay in milliseconds.
      */
-    willAlwaysReject: (error: Error | string, options?: AsyncWhenOptions) => void
+    alwaysReject: (error: Error | string, options?: AsyncWhenOptions) => void
     /**
      * Programs the async method to reject with the given error only once for these arguments.
      * After one call, the behavior is removed.
      * Optionally, specify a delay in milliseconds.
      */
-    willReject: (error: Error | string, options?: AsyncWhenOptions) => void
+    rejectOnce: (error: Error | string, options?: AsyncWhenOptions) => void
   }
 }
 
@@ -65,9 +65,9 @@ type When<T extends object> = {
  * Use the returned methods to specify what the mock should do when called with those arguments.
  *
  * @example
- * when(mockedRepo).findById('id').willReturn(model)
- * when(mockedRepo).findById('id').willThrow(new Error('Not found'))
- * when(mockedFn).call('arg').willReturn('some result')
+ * when(mockedRepo).findById('id').returnOnce(model)
+ * when(mockedRepo).findById('id').throwOnce(new Error('Not found'))
+ * when(mockedFn).call('arg').returnOnce('some result')
  */
 export const when = <T extends object>(mock: Mock<T>) => {
   const _mock = mock as InternalMock<T>
@@ -80,21 +80,21 @@ export const when = <T extends object>(mock: Mock<T>) => {
           const args = anyArgs as Parameters<Extract<T[Methods<T>], Fn>>
 
           return {
-            willAlwaysReturn: (value: any) =>
+            alwaysReturn: (value: any) =>
               _mock.__mockCall(method, { args, value, once: false, type: 'return', options: {} }),
-            willReturn: (value: any) =>
+            returnOnce: (value: any) =>
               _mock.__mockCall(method, { args, value, once: true, type: 'return', options: {} }),
-            willAlwaysThrow: (value: any) =>
+            alwaysThrow: (value: any) =>
               _mock.__mockCall(method, { args, value, once: false, type: 'throw', options: {} }),
-            willThrow: (value: any) =>
+            throwOnce: (value: any) =>
               _mock.__mockCall(method, { args, value, once: true, type: 'throw', options: {} }),
-            willAlwaysResolve: (value: any, options: AsyncWhenOptions) =>
+            alwaysResolve: (value: any, options: AsyncWhenOptions) =>
               _mock.__mockCall(method, { args, value, once: false, type: 'resolve', options: asyncWhenOpts(options) }),
-            willResolve: (value: any, options: AsyncWhenOptions) =>
+            resolveOnce: (value: any, options: AsyncWhenOptions) =>
               _mock.__mockCall(method, { args, value, once: true, type: 'resolve', options: asyncWhenOpts(options) }),
-            willAlwaysReject: (value: any, options: AsyncWhenOptions) =>
+            alwaysReject: (value: any, options: AsyncWhenOptions) =>
               _mock.__mockCall(method, { args, value, once: false, type: 'reject', options: asyncWhenOpts(options) }),
-            willReject: (value: any, options: AsyncWhenOptions) =>
+            rejectOnce: (value: any, options: AsyncWhenOptions) =>
               _mock.__mockCall(method, { args, value, once: true, type: 'reject', options: asyncWhenOpts(options) }),
           }
         }

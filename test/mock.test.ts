@@ -15,46 +15,46 @@ describe('mock', () => {
 
   it('should resolve the mocked value when calling a method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysResolve([])
+    when(mockedRepo).all().alwaysResolve([])
     expect(await mockedRepo.all()).toEqual([])
   })
 
   it('should resolve with a 200ms delay the mocked value when calling a method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysResolve([], { delay: 200 })
+    when(mockedRepo).all().alwaysResolve([], { delay: 200 })
     expect(await mockedRepo.all()).toEqual([])
   })
 
   it('should return the mocked value based on the parameter used', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById('first').willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
-    when(mockedRepo).findById('second').willAlwaysReturn({ id: 'second', externalId: 'ext-second' })
+    when(mockedRepo).findById('first').alwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById('second').alwaysReturn({ id: 'second', externalId: 'ext-second' })
     expect(mockedRepo.findById('first')).toEqual({ id: 'first', externalId: 'ext-first' })
     expect(mockedRepo.findById('second')).toEqual({ id: 'second', externalId: 'ext-second' })
   })
 
   it('should return the mocked value ignoring the parameter used', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'all', externalId: 'ext-all' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'all', externalId: 'ext-all' })
     expect(mockedRepo.findById('first')).toEqual({ id: 'all', externalId: 'ext-all' })
     expect(mockedRepo.findById('second')).toEqual({ id: 'all', externalId: 'ext-all' })
   })
 
   it('should throw the mocked value', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysThrow(new Error('this is an error'))
+    when(mockedRepo).findById(any()).alwaysThrow(new Error('this is an error'))
     expect(() => mockedRepo.findById('second')).toThrow(new Error('this is an error'))
   })
 
   it('should reject the mocked value', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysReject(new Error('this is an error'))
+    when(mockedRepo).all().alwaysReject(new Error('this is an error'))
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('this is an error'))
   })
 
   it('should reject with a 200ms delay the mocked value when calling a method', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysReject(new Error('this is an error'), { delay: 200 })
+    when(mockedRepo).all().alwaysReject(new Error('this is an error'), { delay: 200 })
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('this is an error'))
   })
 
@@ -71,7 +71,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     verify(mockedRepo).findById.toHaveBeenCalled()
@@ -84,7 +84,7 @@ describe('mock', () => {
 
   it('should verify a method to not have been called, but it is called', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toNotHaveBeenCalled()).toThrow(
       'Expected method <findById> to not be called, but it was called 1 times.\n' +
@@ -97,7 +97,7 @@ describe('mock', () => {
 
   it('should verify a method to not have been called with argument, but it is called', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toNotHaveBeenCalledWith('first')).toThrow(
       'Expected method <findById> to not be called with arguments:\n' +
@@ -111,7 +111,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called, but it is not', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
 
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled()).toThrow(
       'Expected method <findById> to be called at least once, but it was never called.'
@@ -120,7 +120,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called nth times', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     verify(mockedRepo).findById.toHaveBeenCalled(2)
@@ -128,7 +128,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called nth times, but it is not', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
@@ -143,7 +143,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called 1 time, but it is called zero times', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
 
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
       'Expected method <findById> to be called 1 times, but it was never called.'
@@ -152,7 +152,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called with arguments', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     verify(mockedRepo).findById.toHaveBeenCalledWith('second')
@@ -160,7 +160,7 @@ describe('mock', () => {
 
   it('should verify a method to have been called with arguments, but it is not', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toHaveBeenCalledWith('second')).toThrow(
       'Expected method <findById> to be called with arguments:\n["second"]\nBut it was not called.\n' +
@@ -186,8 +186,8 @@ describe('mock', () => {
   it('should mock a class', async () => {
     const mockedRepo = mock<UserRepository>()
     mockedRepo.property = 'an-user-property'
-    when(mockedRepo).all().willAlwaysResolve([])
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', name: 'Thor' })
+    when(mockedRepo).all().alwaysResolve([])
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', name: 'Thor' })
 
     mockedRepo.findById('first')
     const allUsers = await mockedRepo.all()
@@ -201,7 +201,7 @@ describe('mock', () => {
   it('should mock a sync function', async () => {
     const mockedFindById = mock<UserRepository['findById']>()
 
-    when(mockedFindById).call('first').willAlwaysReturn({ id: 'first', name: 'Thor' })
+    when(mockedFindById).call('first').alwaysReturn({ id: 'first', name: 'Thor' })
 
     const result = mockedFindById('first')
 
@@ -212,7 +212,7 @@ describe('mock', () => {
   it('should mock an async function', async () => {
     const mockedAll = mock<UserRepository['all']>()
 
-    when(mockedAll).call().willAlwaysResolve([])
+    when(mockedAll).call().alwaysResolve([])
 
     const result = await mockedAll()
 
@@ -222,47 +222,47 @@ describe('mock', () => {
 
   it('override the behavior of a method. The last defined behavior will take precedence.', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysResolve([{ id: 'first', externalId: 'ext-first' }])
-    when(mockedRepo).all().willAlwaysResolve([{ id: 'second', externalId: 'ext-second' }])
+    when(mockedRepo).all().alwaysResolve([{ id: 'first', externalId: 'ext-first' }])
+    when(mockedRepo).all().alwaysResolve([{ id: 'second', externalId: 'ext-second' }])
 
     expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
     expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
   })
 
-  it('do not keep the programmed method with willResolveOnce', async () => {
+  it('do not keep the programmed method with resolveOnceOnce', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysResolve([{ id: 'first', externalId: 'ext-first' }])
-    when(mockedRepo).all().willResolve([{ id: 'second', externalId: 'ext-second' }])
+    when(mockedRepo).all().alwaysResolve([{ id: 'first', externalId: 'ext-first' }])
+    when(mockedRepo).all().resolveOnce([{ id: 'second', externalId: 'ext-second' }])
 
     expect(await mockedRepo.all()).toEqual([{ id: 'second', externalId: 'ext-second' }])
     expect(await mockedRepo.all()).toEqual([{ id: 'first', externalId: 'ext-first' }])
     expect(await mockedRepo.all()).toEqual([{ id: 'first', externalId: 'ext-first' }])
   })
 
-  it('do not keep the programmed method with willRejectOnce', async () => {
+  it('do not keep the programmed method with rejectOnceOnce', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysReject(new Error('first programmed error'))
-    when(mockedRepo).all().willReject(new Error('second programmed once error'))
+    when(mockedRepo).all().alwaysReject(new Error('first programmed error'))
+    when(mockedRepo).all().rejectOnce(new Error('second programmed once error'))
 
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('second programmed once error'))
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('first programmed error'))
     await expect(() => mockedRepo.all()).rejects.toThrow(new Error('first programmed error'))
   })
 
-  it('do not keep the programmed method with willReturnOnce ', async () => {
+  it('do not keep the programmed method with returnOnceOnce ', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
-    when(mockedRepo).findById(any()).willReturn({ id: 'second', externalId: 'ext-second' })
+    when(mockedRepo).findById(any()).alwaysReturn({ id: 'first', externalId: 'ext-first' })
+    when(mockedRepo).findById(any()).returnOnce({ id: 'second', externalId: 'ext-second' })
 
     expect(mockedRepo.findById('any')).toEqual({ id: 'second', externalId: 'ext-second' })
     expect(mockedRepo.findById('any')).toEqual({ id: 'first', externalId: 'ext-first' })
     expect(mockedRepo.findById('any')).toEqual({ id: 'first', externalId: 'ext-first' })
   })
 
-  it('do not keep the programmed method with willThrowOnce', async () => {
+  it('do not keep the programmed method with throwOnceOnce', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).findById(any()).willAlwaysThrow(new Error('first programmed error'))
-    when(mockedRepo).findById(any()).willThrow(new Error('second programmed once error'))
+    when(mockedRepo).findById(any()).alwaysThrow(new Error('first programmed error'))
+    when(mockedRepo).findById(any()).throwOnce(new Error('second programmed once error'))
 
     expect(() => mockedRepo.findById('any')).toThrow(new Error('second programmed once error'))
     expect(() => mockedRepo.findById('any')).toThrow(new Error('first programmed error'))
@@ -271,7 +271,7 @@ describe('mock', () => {
 
   it('reset a single mock', async () => {
     const mockedRepo = mock<ModelRepository>()
-    when(mockedRepo).all().willAlwaysResolve([])
+    when(mockedRepo).all().alwaysResolve([])
     await mockedRepo.all()
     verify(mockedRepo).all.toHaveBeenCalled(1)
 
@@ -285,9 +285,9 @@ describe('mock', () => {
     const mockedRepo = mock<ModelRepository>()
     const anotherMock = mock<AnotherInterface>()
     const mockFindById = mock<ModelRepository['findById']>()
-    when(mockedRepo).all().willAlwaysResolve([])
-    when(anotherMock).aMethod(any()).willAlwaysReturn('')
-    when(mockFindById).call('2').willAlwaysReturn(null)
+    when(mockedRepo).all().alwaysResolve([])
+    when(anotherMock).aMethod(any()).alwaysReturn('')
+    when(mockFindById).call('2').alwaysReturn(null)
     await mockedRepo.all()
     anotherMock.aMethod(1)
     mockFindById('2')

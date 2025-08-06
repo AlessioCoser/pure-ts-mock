@@ -21,7 +21,7 @@
   - [`verify(mock).method`](#verifymockmethod)
   - [`any()` matchers](#any-matchers)
   - [`resetAllMocks()`](#resetallmocks)
-- [Return-Once by Default: How it differs from other mocking libraries](#return-once-by-default-how-it-differs-from-other-mocking-libraries)
+- [No default behaviour: How it differs from other mocking libraries](#no-default-behaviour-how-it-differs-from-other-mocking-libraries)
 
 ## Why pure-ts-mock?
 - ✨ **Simple**: Just `mock`, `when`, `verify`, `any` and `resetAllMocks` keywords.
@@ -61,7 +61,7 @@ interface ModelRepository {
 // Create a mock for the interface:
 const mockedRepo = mock<ModelRepository>()
 // Program the behavior for any argument
-when(mockedRepo).findById(any()).willReturn({ id: 'all', externalId: 'ext-all' })
+when(mockedRepo).findById(any()).returnOnce({ id: 'all', externalId: 'ext-all' })
 // Use the mock
 mockedRepo.findById('first')
 // Verify the method was called with any argument
@@ -75,7 +75,7 @@ type FindById = (id: string) => User | null
 // Create a mock for the function:
 const mockedFindById = mock<FindById>()
 // Program the function's behavior:
-when(mockedFindById).call('first').willAlwaysReturn({ id: 'first', name: 'Thor' })
+when(mockedFindById).call('first').alwaysReturn({ id: 'first', name: 'Thor' })
 // Use the mock:
 mockedFindById('first')
 // Verify the function was called with specific arguments:
@@ -109,44 +109,44 @@ const mockFn = mock<FindById>() // cannot pass any property
 ### `when(mock).method(...args)`
 Programs the behavior of a mocked method for specific arguments. The returned object exposes:
 - For sync methods:
-  - `willReturn(value)` — returns the specified value **only once** for matching arguments, then falls back to previous behavior
-  - `willAlwaysReturn(value)` — always returns the specified value for matching arguments
-  - `willThrow(error)` — throws the specified error **only once** for matching arguments, then falls back to previous behavior
-  - `willAlwaysThrow(error)` — always throws the specified error for matching arguments
+  - `returnOnce(value)` — returns the specified value **only once** for matching arguments, then falls back to previous behavior
+  - `alwaysReturn(value)` — always returns the specified value for matching arguments
+  - `throwOnce(error)` — throws the specified error **only once** for matching arguments, then falls back to previous behavior
+  - `alwaysThrow(error)` — always throws the specified error for matching arguments
 - For async methods:
-  - `willResolve(value, options?)` — resolves with the specified value **only once** (optionally delayed), then falls back to previous behavior
-  - `willAlwaysResolve(value, options?)` — always resolves with the specified value (optionally delayed) for matching arguments
-  - `willReject(error, options?)` — rejects with the specified error **only once** (optionally delayed), then falls back to previous behavior
-  - `willAlwaysReject(error, options?)` — always rejects with the specified error (optionally delayed) for matching arguments
+  - `resolveOnce(value, options?)` — resolves with the specified value **only once** (optionally delayed), then falls back to previous behavior
+  - `alwaysResolve(value, options?)` — always resolves with the specified value (optionally delayed) for matching arguments
+  - `rejectOnce(error, options?)` — rejects with the specified error **only once** (optionally delayed), then falls back to previous behavior
+  - `alwaysReject(error, options?)` — always rejects with the specified error (optionally delayed) for matching arguments
 
 If the mock is a function mock the available 'when' method will ever be only `call`: `when(mockFn).call(...args)`.
 
 #### Behavior explanation
-- The original variants (`willReturn`, `willThrow`, `willResolve`, `willReject`) only affect the **next matching call**. After being used once, the behavior is removed and later calls use the previous behavior, if any.
-- The "Always" variants (`willAlwaysReturn`, `willAlwaysThrow`, `willAlwaysResolve`, `willAlwaysReject`) persist for all matching calls until overridden.
+- The original variants (`returnOnce`, `throwOnce`, `resolveOnce`, `rejectOnce`) only affect the **next matching call**. After being used once, the behavior is removed and later calls use the previous behavior, if any.
+- The "Always" variants (`alwaysReturn`, `alwaysThrow`, `alwaysResolve`, `alwaysReject`) persist for all matching calls until overridden.
 - If multiple behaviors are programmed for the same method/arguments, the **last defined behavior takes precedence**.
 
 #### Usage Examples
 ```typescript
 // Sync methods
-when(repo).findById('first').willReturn(model) // returns model only once, then falls back
-when(repo).findById('first').willAlwaysReturn(model) // always returns model
-when(repo).findById('second').willThrow(new Error('Not found')) // throws only once, then falls back
-when(repo).findById('second').willAlwaysThrow(new Error('Not found')) // always throws
+when(repo).findById('first').returnOnce(model) // returns model only once, then falls back
+when(repo).findById('first').alwaysReturn(model) // always returns model
+when(repo).findById('second').throwOnce(new Error('Not found')) // throws only once, then falls back
+when(repo).findById('second').alwaysThrow(new Error('Not found')) // always throws
 
 // Async methods
-when(repo).all().willAlwaysResolve([]) // always resolves to []
-when(repo).all().willResolve([]) // resolves to [] only once, then falls back
-when(repo).all().willAlwaysReject(new Error('Failed'), { delay: 200 }) // always rejects
-when(repo).all().willReject(new Error('Failed'), { delay: 200 }) // rejects only once, then falls back
+when(repo).all().alwaysResolve([]) // always resolves to []
+when(repo).all().resolveOnce([]) // resolves to [] only once, then falls back
+when(repo).all().alwaysReject(new Error('Failed'), { delay: 200 }) // always rejects
+when(repo).all().rejectOnce(new Error('Failed'), { delay: 200 }) // rejects only once, then falls back
 
 // Using any() matcher
-when(repo).findById(any()).willReturn(model)
-when(repo).findById(any()).willAlwaysReturn(model)
+when(repo).findById(any()).returnOnce(model)
+when(repo).findById(any()).alwaysReturn(model)
 
 // function mocks
-when(mockSyncFn).call('any arg').willReturn({ id: 'first', name: 'Thor' })
-when(mockAsyncFn).call('any arg').willResolve('some result')
+when(mockSyncFn).call('any arg').returnOnce({ id: 'first', name: 'Thor' })
+when(mockAsyncFn).call('any arg').resolveOnce('some result')
 ```
 
 ---
@@ -210,7 +210,7 @@ const anyMoreThanFiveMatcher = any<number>(actual => actual > 5)
 const anyMoreThanXMatcher = (x: number) => any<number>(actual => actual > x)
 
 // Usage in when/verify:
-when(mockedRepo).save({ id: any.string(), value: anyMoreThanFiveMatcher }).willResolve()
+when(mockedRepo).save({ id: any.string(), value: anyMoreThanFiveMatcher }).resolveOnce()
 verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreThanFiveMatcher })
 verify(mockedRepo).save.toHaveBeenCalledWith({ id: any.string(), value: anyMoreThanXMatcher(5) })
 ```
@@ -256,7 +256,7 @@ If you want to reset a single mock, use `resetMock()` on that specific mock inst
 
 ```typescript
 const repo = mock<ModelRepository>()
-when(repo).all().willResolve([])
+when(repo).all().resolveOnce([])
 await repo.all()
 
 repo.resetMock()
@@ -264,19 +264,22 @@ repo.resetMock()
 verify(repo).all.toNotHaveBeenCalled()
 ```
 
-## Return-Once by Default: How it differs from other mocking libraries
+## No default behaviour: How it differs from other mocking libraries
 
 > Mock interactions, not just values. Be explicit: let your tests guide better design.
 
-**pure-ts-mock flips the default:**
-- `willReturn` (and similar methods) returns the value **once** (like `willReturnOnce` in other libraries).
-- `willAlwaysReturn` (and similar methods) returns the same value **every time**.
+**pure-ts-mock**  does not provide any default behavior such as returning, throwing, resolving, or rejecting values. 
+Instead, you must explicitly define how each mock should behave.
 
-While most libraries default to `always return`, pure-ts-mock defaults to `just once`.
+There are two explicit versions of each mock method:
+- `[]Once` methods (like `returnOnce`, `throwOnce`, etc.) — apply the behavior only to the next matching call.
+- `always[]` methods (like `alwaysReturn`, `alwaysThrow`, etc.) — apply the behavior to every matching call.
 
-This explicit approach helps you:
-- **reflect real interactions**, and expose temporal dependencies in your code
+Unlike most libraries, which default to "always return" behavior, **pure-ts-mock** requires you to specify the behavior you want.
+This explicitness helps you:
+- **reflect real interactions** and expose temporal dependencies in your code
 - **reveal hidden dependencies** on repeated values
 - **spot refactoring opportunities:** if you need many different responses for the same mock, your code may be too complex or tightly coupled. This clarity helps you identify where to simplify or refactor.
 
-When you truly intend to return the same value every time, you can still use `willAlwaysReturn` (or similar methods).
+**Tip**: Prefer using `returnOnce` (or similar methods) to avoid unexpected behaviors in your tests.
+Use `alwaysReturn` (or similar methods) only when you truly intend for the same value to be returned every time.
