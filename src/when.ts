@@ -59,15 +59,15 @@ type WhenFnSelector<T extends Fn> = ReturnType<T> extends Promise<any> ? AsyncWh
 
 type When<T extends object> = {
   [K in Methods<T>]: WhenFnSelector<Extract<T[K], Fn>>
-}
-
+} & (T extends Fn ? { call: WhenFnSelector<T> } : {})
 /**
- * Programs the behavior of a mocked method for specific arguments.
+ * Programs the behavior of a mocked function or object.method for specific arguments.
  * Use the returned methods to specify what the mock should do when called with those arguments.
  *
  * @example
  * when(mockedRepo).findById('id').willReturn(model)
  * when(mockedRepo).findById('id').willThrow(new Error('Not found'))
+ * when(mockedFn).call('arg').willReturn('some result')
  */
 export const when = <T extends object>(mock: Mock<T>) => {
   const _mock = mock as InternalMock<T>

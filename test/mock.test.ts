@@ -87,7 +87,7 @@ describe('mock', () => {
     when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toNotHaveBeenCalled()).toThrow(
-      'Expected method findById to not be called, but it was called 1 times.\n' +
+      'Expected method <findById> to not be called, but it was called 1 times.\n' +
       '\n' +
       'Registered calls: [\n' +
       '\t["first"]\n' +
@@ -100,7 +100,7 @@ describe('mock', () => {
     when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toNotHaveBeenCalledWith('first')).toThrow(
-      'Expected method findById to not be called with arguments:\n' +
+      'Expected method <findById> to not be called with arguments:\n' +
       '["first"]\n' +
       'But it was called with those arguments.\n\n' +
       'Registered calls: [\n\t' +
@@ -114,7 +114,7 @@ describe('mock', () => {
     when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
 
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled()).toThrow(
-      'Expected method findById to be called at least once, but it was never called.'
+      'Expected method <findById> to be called at least once, but it was never called.'
     )
   })
 
@@ -132,7 +132,7 @@ describe('mock', () => {
     mockedRepo.findById('first')
     mockedRepo.findById('second')
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
-      'Expected method findById to be called 1 times, but was called 2 times.\n' +
+      'Expected method <findById> to be called 1 times, but was called 2 times.\n' +
       '\n' +
       'Registered calls: [\n' +
       '\t["first"],\n' +
@@ -146,7 +146,7 @@ describe('mock', () => {
     when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
 
     expect(() => verify(mockedRepo).findById.toHaveBeenCalled(1)).toThrow(
-      'Expected method findById to be called 1 times, but it was never called.'
+      'Expected method <findById> to be called 1 times, but it was never called.'
     )
   })
 
@@ -163,7 +163,7 @@ describe('mock', () => {
     when(mockedRepo).findById(any()).willAlwaysReturn({ id: 'first', externalId: 'ext-first' })
     mockedRepo.findById('first')
     expect(() => verify(mockedRepo).findById.toHaveBeenCalledWith('second')).toThrow(
-      'Expected method findById to be called with arguments:\n["second"]\nBut it was not called.\n' +
+      'Expected method <findById> to be called with arguments:\n["second"]\nBut it was not called.\n' +
         '\n' +
         'Registered calls: [\n\t' +
         '["first"]\n' +
@@ -175,7 +175,7 @@ describe('mock', () => {
     const mockedRepo = mock<ModelRepository>()
 
     expect(() => verify(mockedRepo).findById.toHaveBeenCalledWith('second')).toThrow(
-      'Expected method findById to be called with arguments:\n["second"]\nBut it was not called.\n' +
+      'Expected method <findById> to be called with arguments:\n["second"]\nBut it was not called.\n' +
         '\n' +
         'Registered calls: [\n\t' +
         '\n' +
@@ -196,6 +196,28 @@ describe('mock', () => {
     expect(allUsers).toEqual([])
     verify(mockedRepo).findById.toHaveBeenCalledWith('first')
     verify(mockedRepo).all.toHaveBeenCalled()
+  })
+
+  it('should mock a sync function', async () => {
+    const mockedFindById = mock<UserRepository['findById']>()
+
+    when(mockedFindById).call('first').willAlwaysReturn({ id: 'first', name: 'Thor' })
+
+    const result = mockedFindById('first')
+
+    expect(result?.id).toEqual('first')
+    verify(mockedFindById).call.toHaveBeenCalledWith('first')
+  })
+
+  it('should mock an async function', async () => {
+    const mockedAll = mock<UserRepository['all']>()
+
+    when(mockedAll).call().willAlwaysResolve([])
+
+    const result = await mockedAll()
+
+    expect(result).toHaveLength(0)
+    verify(mockedAll).call.toHaveBeenCalled()
   })
 
   it('override the behavior of a method. The last defined behavior will take precedence.', async () => {
@@ -262,10 +284,13 @@ describe('mock', () => {
   it('reset all mocks', async () => {
     const mockedRepo = mock<ModelRepository>()
     const anotherMock = mock<AnotherInterface>()
+    const mockFindById = mock<ModelRepository['findById']>()
     when(mockedRepo).all().willAlwaysResolve([])
     when(anotherMock).aMethod(any()).willAlwaysReturn('')
+    when(mockFindById).call('2').willAlwaysReturn(null)
     await mockedRepo.all()
     anotherMock.aMethod(1)
+    mockFindById('2')
     verify(mockedRepo).all.toHaveBeenCalled(1)
     verify(anotherMock).aMethod.toHaveBeenCalled(1)
 
@@ -273,8 +298,10 @@ describe('mock', () => {
 
     verify(mockedRepo).all.toNotHaveBeenCalled()
     verify(anotherMock).aMethod.toNotHaveBeenCalled()
+    verify(mockFindById).call.toNotHaveBeenCalled()
     expect(() => mockedRepo.all()).toThrow('No match found for method <all> called with arguments: []')
     expect(() => anotherMock.aMethod(1)).toThrow('No match found for method <aMethod> called with arguments: [1]')
+    expect(() => mockFindById('2')).toThrow('No match found for function called with arguments: ["2"]')
   })
 })
 

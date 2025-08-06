@@ -1,13 +1,21 @@
-import type { Fn, InternalMock, Methods, Mock, ParametersWithDeepAny } from './mock'
+import {
+  type Fn,
+  type InternalMock,
+  type Methods,
+  type Mock,
+  type ParametersWithDeepAny,
+  targetMethodLog,
+} from './mock'
 import { equal } from './equal'
 
 /**
- * Provides verification methods for mocked method calls.
- * Use to assert how and when a mock's methods were called in your tests.
+ * Provides verification methods for mocked function or object.method calls.
+ * Use to assert how and when a mock function or object.methods were called in your tests.
  *
  * @example
  * verify(mockedRepo).findById.toHaveBeenCalled()
  * verify(mockedRepo).findById.toHaveBeenCalledWith('id')
+ * verify(mockedFn).call.toHaveBeenCalled()
  */
 type VerifyFn<T extends Fn> = {
   /**
@@ -32,7 +40,7 @@ type VerifyFn<T extends Fn> = {
 
 type Verify<T extends object> = {
   [K in Methods<T>]: VerifyFn<Extract<T[K], Fn>>
-}
+} & (T extends Fn ? { call: VerifyFn<T> } : {})
 
 /**
  * Verifies the calls made to the mocked methods.
@@ -55,31 +63,31 @@ export const verify = <T extends object>(mock: Mock<T>) => {
         return {
           toNotHaveBeenCalled: () => {
             if (methodCalls.length > 0) {
-              throw `Expected method ${String(method)} to not be called, but it was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              throw `Expected ${targetMethodLog(method)} to not be called, but it was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
             }
           },
           toHaveBeenCalled: (times?: number) => {
             if (times === undefined && methodCalls.length === 0) {
-              throw `Expected method ${String(method)} to be called at least once, but it was never called.`
+              throw `Expected ${targetMethodLog(method)} to be called at least once, but it was never called.`
             }
             if (times !== undefined && methodCalls.length === 0) {
-              throw `Expected method ${String(method)} to be called ${times} times, but it was never called.`
+              throw `Expected ${targetMethodLog(method)} to be called ${times} times, but it was never called.`
             }
             if (times !== undefined && methodCalls.length !== times) {
-              throw `Expected method ${String(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              throw `Expected ${targetMethodLog(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
             }
           },
           toNotHaveBeenCalledWith: (...args: ParametersWithDeepAny<Extract<T[Methods<T>], Fn>>) => {
             if (methodCalls.some(call => equal(call, args))) {
-              throw `Expected method ${String(method)} to not be called with arguments:\n${JSON.stringify(args)}\nBut it was called with those arguments.\n\nRegistered calls: ${callsLog}`
+              throw `Expected ${targetMethodLog(method)} to not be called with arguments:\n${JSON.stringify(args)}\nBut it was called with those arguments.\n\nRegistered calls: ${callsLog}`
             }
           },
           toHaveBeenCalledWith: (...args: ParametersWithDeepAny<Extract<T[Methods<T>], Fn>>) => {
             if (!methodCalls.some(call => equal(call, args))) {
-              throw `Expected method ${String(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: ${callsLog}`
+              throw `Expected ${targetMethodLog(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: ${callsLog}`
             }
           },
-        } as Verify<Extract<T[Methods<T>], Fn>>
+        } as VerifyFn<Extract<T[Methods<T>], Fn>>
       },
     }
   ) as Verify<T>

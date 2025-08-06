@@ -13,6 +13,8 @@
 - [Philosophy](#philosophy)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+  - [Mocking interfaces or classes](#mocking-interfaces-or-classes)
+  - [Mocking Standalone Functions](#mocking-standalone-functions)
 - [API Documentation](#api-documentation)
   - [`mock<T>(defaultProperties?)`](#mocktdefaultproperties)
   - [`when(mock).method(...args)`](#whenmockmethodargs)
@@ -20,7 +22,6 @@
   - [`any()` matchers](#any-matchers)
   - [`resetAllMocks()`](#resetallmocks)
 - [Return-Once by Default: How it differs from other mocking libraries](#return-once-by-default-how-it-differs-from-other-mocking-libraries)
-
 
 ## Why pure-ts-mock?
 - ✨ **Simple**: Just `mock`, `when`, `verify`, `any` and `resetAllMocks` keywords.
@@ -49,42 +50,59 @@ yarn add --dev pure-ts-mock
 
 ## Quick Start
 
-Suppose you have an interface:
+### Mocking interfaces or classes:
+
 ```typescript
 interface ModelRepository {
   property: string
   findById(id: string): Model | null
   all(): Promise<Model[]>
 }
-```
-
-Create a mock:
-```typescript
+// Create a mock for the interface:
 const mockedRepo = mock<ModelRepository>()
-```
-
-Program a method and verify calls:
-```typescript
 // Program the behavior for any argument
 when(mockedRepo).findById(any()).willReturn({ id: 'all', externalId: 'ext-all' })
-
 // Use the mock
 mockedRepo.findById('first')
-
 // Verify the method was called with any argument
 verify(mockedRepo).findById.toHaveBeenCalledWith('first')
 ```
+
+### Mocking standalone functions
+
+```typescript
+type FindById = (id: string) => User | null
+// Create a mock for the function:
+const mockedFindById = mock<FindById>()
+// Program the function's behavior:
+when(mockedFindById).call('first').willAlwaysReturn({ id: 'first', name: 'Thor' })
+// Use the mock:
+mockedFindById('first')
+// Verify the function was called with specific arguments:
+verify(mockedFindById).call.toHaveBeenCalledWith('first')
+```
+
+**Note**: the use of `.call` in both `when` and `verify` to program and assert calls.
 
 ## API Documentation
 
 ---
 
 ### `mock<T>(defaultProperties?)`
-Creates a mock object for the given interface or class. Optionally, you can set default property values.
+Creates a mock object for the given function, interface or class.
+Optionally, and not with function mock, you can set default property values.
+
 ```typescript
 const repo = mock<ModelRepository>()
 const repoWithDefaults = mock<ModelRepository>({ property: 'default-value' })
 ```
+
+```typescript
+type FindById = (id: string) => User | null
+const mockFn = mock<FindById>() // cannot pass any property
+```
+
+> **Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.
 
 ---
 
@@ -100,6 +118,8 @@ Programs the behavior of a mocked method for specific arguments. The returned ob
   - `willAlwaysResolve(value, options?)` — always resolves with the specified value (optionally delayed) for matching arguments
   - `willReject(error, options?)` — rejects with the specified error **only once** (optionally delayed), then falls back to previous behavior
   - `willAlwaysReject(error, options?)` — always rejects with the specified error (optionally delayed) for matching arguments
+
+If the mock is a function mock the available 'when' method will ever be only `call`: `when(mockFn).call(...args)`.
 
 #### Behavior explanation
 - The original variants (`willReturn`, `willThrow`, `willResolve`, `willReject`) only affect the **next matching call**. After being used once, the behavior is removed and later calls use the previous behavior, if any.
@@ -123,6 +143,10 @@ when(repo).all().willReject(new Error('Failed'), { delay: 200 }) // rejects only
 // Using any() matcher
 when(repo).findById(any()).willReturn(model)
 when(repo).findById(any()).willAlwaysReturn(model)
+
+// function mocks
+when(mockSyncFn).call('any arg').willReturn({ id: 'first', name: 'Thor' })
+when(mockAsyncFn).call('any arg').willResolve('some result')
 ```
 
 ---
@@ -134,6 +158,8 @@ Verifies how a mocked method was called. The returned object exposes:
 - `toNotHaveBeenCalledWith(...args)` — asserts the method was never called with the specified arguments
 - `toHaveBeenCalledWith(...args)` — asserts the method was called with the specified arguments
 
+If the mock is a function mock the available 'verify' method will ever be only `call`: `verify(mockFn).call`.
+
 **Usage Examples:**
 ```typescript
 verify(repo).findById.toHaveBeenCalled()
@@ -141,6 +167,8 @@ verify(repo).findById.toHaveBeenCalled(2)
 verify(repo).findById.toHaveBeenCalledWith('first')
 verify(repo).findById.toNotHaveBeenCalled()
 verify(repo).findById.toNotHaveBeenCalledWith('second')
+// function mocks
+verify(mockFn).call.toNotHaveBeenCalled()
 ```
 
 ---

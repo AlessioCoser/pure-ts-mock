@@ -4,9 +4,7 @@ import type { DeepAny } from './matchers/any-matcher'
 export type Fn = (...args: any[]) => any
 
 export type ParametersWithDeepAny<T extends Fn> =
-  Parameters<T> extends [...infer P]
-    ? { [K in keyof P]: DeepAny<P[K]> }
-    : never
+  Parameters<T> extends [...infer P] ? { [K in keyof P]: DeepAny<P[K]> } : never
 
 export type Methods<T> = {
   [K in keyof T]: T[K] extends Fn ? K : never
@@ -64,9 +62,10 @@ export type InternalMock<T extends object> = Mock<T> & {
 }
 
 /**
- * Creates a mock object for the given interface or class.
+ * Creates a mock object for the given interface, class, or function type.
  * Optionally, provide default property values for non-method fields.
  * The returned mock tracks calls and allows you to program method behaviors.
+ * Function types are fully supported. For function mocks, use `.call` in `when` and `verify`.
  */
 export function mock<T extends object>(
   defaultProperties?: HasProperties<T> extends true ? AllProperties<T> : never
@@ -91,40 +90,51 @@ export function mock<T extends object>(
       }
       return __mockedMethods[method].push(result)
     },
-  }
-  allMocks.push(internalMock as InternalMock<T>)
-  return new Proxy(internalMock as InternalMock<T>, {
-    get(internal, prop) {
-      const method = prop as unknown as Methods<T>
-      if (method in internal) {
-        return internal[method]
-      }
-      return (...args: any[]) => {
-        const callArgs = args as Parameters<Extract<T[Methods<T>], Fn>>
-        if (!internal.__calls[method]) {
-          internal.__calls[method] = []
-        }
-        internal.__calls[method].push(callArgs)
-        const results = internal.__mockedMethods[method] || []
-        const matchingResult = results.findLast(r => equal(r.args, callArgs))
-        if (!matchingResult) {
-          throw `No match found for method <${String(method)}> called with arguments: ${JSON.stringify(callArgs)}`
-        }
-        if (matchingResult.once) {
-          internal.__mockedMethods[method] = internal.__mockedMethods[method]?.filter(r => r !== matchingResult)
-        }
+  } as InternalMock<T>
 
-        switch (matchingResult.type) {
-          case 'return':
-          case 'throw':
-            return syncExecution<T>(matchingResult)
-          case 'resolve':
-          case 'reject':
-            return asyncExecution<T>(matchingResult)
-        }
-      }
-    },
+  const mockFn = mockFunction(internalMock, 'call' as unknown as Methods<T>) as Fn
+  const mock = new Proxy(Object.assign(mockFn, internalMock), {
+    get: (internal, prop) => mockFunction(internal, prop as unknown as Methods<T>),
   }) as Mock<T>
+  allMocks.push(mock)
+  return mock
+}
+
+function mockFunction<T extends object>(internal: InternalMock<T>, method: Methods<T>) {
+  if (method in internal) {
+    return internal[method]
+  }
+  return (...args: any[]) => {
+    const callArgs = args as Parameters<Extract<T[Methods<T>], Fn>>
+    if (!internal.__calls[method]) {
+      internal.__calls[method] = []
+    }
+    internal.__calls[method].push(callArgs)
+    const results = internal.__mockedMethods[method] || []
+    const matchingResult = results.findLast(r => equal(r.args, callArgs))
+    if (!matchingResult) {
+      if (method === 'call') {
+        throw `No match found for function called with arguments: ${JSON.stringify(callArgs)}`
+      }
+      throw `No match found for ${targetMethodLog(method)} called with arguments: ${JSON.stringify(callArgs)}`
+    }
+    if (matchingResult.once) {
+      internal.__mockedMethods[method] = internal.__mockedMethods[method]?.filter(r => r !== matchingResult)
+    }
+
+    switch (matchingResult.type) {
+      case 'return':
+      case 'throw':
+        return syncExecution<T>(matchingResult)
+      case 'resolve':
+      case 'reject':
+        return asyncExecution<T>(matchingResult)
+    }
+  }
+}
+
+export function targetMethodLog(method: any): string {
+  return method === 'call' ? 'function' : `method <${String(method)}>`
 }
 
 const syncExecution = <T extends object>(res: SyncMockedMethodResult<Extract<T[Methods<T>], Fn>>): any => {
