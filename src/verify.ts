@@ -63,28 +63,40 @@ export const verify = <T extends object>(mock: Mock<T>) => {
         return {
           toNotHaveBeenCalled: () => {
             if (methodCalls.length > 0) {
-              throw `Expected ${targetMethodLog(method)} to not be called, but it was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to not be called, but it was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              )
             }
           },
           toHaveBeenCalled: (times?: number) => {
             if (times === undefined && methodCalls.length === 0) {
-              throw `Expected ${targetMethodLog(method)} to be called at least once, but it was never called.`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to be called at least once, but it was never called.`
+              )
             }
             if (times !== undefined && methodCalls.length === 0) {
-              throw `Expected ${targetMethodLog(method)} to be called ${times} times, but it was never called.`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to be called ${times} times, but it was never called.`
+              )
             }
             if (times !== undefined && methodCalls.length !== times) {
-              throw `Expected ${targetMethodLog(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to be called ${times} times, but was called ${methodCalls.length} times.\n\nRegistered calls: ${callsLog}`
+              )
             }
           },
           toNotHaveBeenCalledWith: (...args: ParametersWithDeepAny<Extract<T[Methods<T>], Fn>>) => {
             if (methodCalls.some(call => equal(call, args))) {
-              throw `Expected ${targetMethodLog(method)} to not be called with arguments:\n${JSON.stringify(args)}\nBut it was called with those arguments.\n\nRegistered calls: ${callsLog}`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to not be called with arguments:\n${JSON.stringify(args)}\nBut it was called with those arguments.\n\nRegistered calls: ${callsLog}`
+              )
             }
           },
           toHaveBeenCalledWith: (...args: ParametersWithDeepAny<Extract<T[Methods<T>], Fn>>) => {
             if (!methodCalls.some(call => equal(call, args))) {
-              throw `Expected ${targetMethodLog(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: ${callsLog}`
+              throw new Error(
+                `Expected ${targetMethodLog(method)} to be called with arguments:\n${JSON.stringify(args)}\nBut it was not called.\n\nRegistered calls: ${callsLog}`
+              )
             }
           },
         } as VerifyFn<Extract<T[Methods<T>], Fn>>

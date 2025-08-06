@@ -113,10 +113,9 @@ function mockFunction<T extends object>(internal: InternalMock<T>, method: Metho
     const results = internal.__mockedMethods[method] || []
     const matchingResult = results.findLast(r => equal(r.args, callArgs))
     if (!matchingResult) {
-      if (method === 'call') {
-        throw `No match found for function called with arguments: ${JSON.stringify(callArgs)}`
-      }
-      throw `No match found for ${targetMethodLog(method)} called with arguments: ${JSON.stringify(callArgs)}`
+      throw new Error(
+        `No match found for ${targetMethodLog(method)} called with arguments: ${JSON.stringify(callArgs)}`
+      )
     }
     if (matchingResult.once) {
       internal.__mockedMethods[method] = internal.__mockedMethods[method]?.filter(r => r !== matchingResult)
