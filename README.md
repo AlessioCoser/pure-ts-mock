@@ -16,7 +16,7 @@
   - [Mocking interfaces or classes](#mocking-interfaces-or-classes)
   - [Mocking Standalone Functions](#mocking-standalone-functions)
 - [API Documentation](#api-documentation)
-  - [`mock<T>()`](#mockt)
+  - [`mock<T>(options?)`](#mocktoptions)
   - [`when(mock).method(...args)`](#whenmockmethodargs)
   - [`verify(mock).method`](#verifymockmethod)
   - [`any()` matchers](#any-matchers)
@@ -88,18 +88,43 @@ verify(mockedFindById).call.toHaveBeenCalledWith('first')
 
 ---
 
-### `mock<T>()`
+### `mock<T>(options?)`
 Creates a mock object for the given function, interface or class.
 
+#### Parameters
+- `options?` (optional): Configuration object with the following properties:
+  - `relaxed` (boolean, default: `false`): Controls the mock's behavior for unprogrammed methods
+
+#### Usage Examples
+
 ```typescript
+// Basic usage
 const repo = mock<ModelRepository>()
+const mockFn = mock<FindById>()
+
+// With relaxed option enabled
+const relaxedRepo = mock<ModelRepository>({ relaxed: true })
+const relaxedFn = mock<FindById>({ relaxed: true })
 ```
+
+**Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.
+
+
+#### Behavior Modes
+
+**Strict Mode (default)**: When `relaxed: false` or no options are provided, the mock operates in strict mode. Calling a method or function that has not been programmed with `when` and the correct input will throw an error.
+
+**Relaxed Mode**: When `relaxed: true` is set, the mock will return `undefined` for unprogrammed methods or functions instead of throwing.
 
 ```typescript
-const mockFn = mock<FindById>()
-```
+// Strict mode (default behavior)
+const strictMock = mock<MyInterface>();
+strictMock.notProgrammedMethod(); // throws Error: no match found for method <notProgrammedMethod> called with arguments: []
 
-> **Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.
+// Relaxed mode
+const relaxedMock = mock<MyInterface>({ relaxed: true });
+relaxedMock.notProgrammedMethod(); // returns undefined
+```
 
 ---
 

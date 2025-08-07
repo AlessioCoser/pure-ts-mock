@@ -52,6 +52,7 @@ export type Mock<T extends object> = T & { resetMock: () => void }
 export type InternalMock<T extends object> = Mock<T> & {
   __calls: Calls<T>
   __mockedMethods: MockedMethods<T>
+  __relaxedMode: boolean
   __mockCall<K extends Methods<T>>(method: K, result: MockedMethodResult<Extract<T[K], Fn>>): void
 }
 
@@ -60,12 +61,14 @@ export type InternalMock<T extends object> = Mock<T> & {
  * The returned mock tracks calls and allows you to program method behaviors.
  * Function types are fully supported. For function mocks, use `.call` in `when` and `verify`.
  */
-export function mock<T extends object>(): Mock<T> {
+export function mock<T extends object>(options?: { relaxed?: boolean }): Mock<T> {
   const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
+  const __relaxedMode = options?.relaxed ?? false
   const internalMock = {
     __calls,
     __mockedMethods,
+    __relaxedMode,
     resetMock() {
       for (const key in __calls) {
         __calls[key as keyof Calls<T>] = []
@@ -103,6 +106,9 @@ function mockFunction<T extends object>(internal: InternalMock<T>, method: Metho
     const results = internal.__mockedMethods[method] || []
     const matchingResult = results.findLast(r => equal(r.args, callArgs))
     if (!matchingResult) {
+      if (internal.__relaxedMode) {
+        return undefined
+      }
       throw new Error(
         `No match found for ${targetMethodLog(method)} called with arguments: ${JSON.stringify(callArgs)}`
       )

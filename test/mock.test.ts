@@ -304,6 +304,76 @@ describe('mock', () => {
     expect(() => anotherMock.aMethod(1)).toThrow('No match found for method <aMethod> called with arguments: [1]')
     expect(() => mockFindById('2')).toThrow('No match found for function called with arguments: ["2"]')
   })
+
+  describe('relaxed mode', () => {
+    it('should return undefined for unprogrammed methods in relaxed mode', () => {
+      const relaxedMock = mock<ModelRepository>({ relaxed: true })
+
+      const result = relaxedMock.findById('notProgrammed')
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should return undefined for unprogrammed async methods in relaxed mode', async () => {
+      const relaxedMock = mock<ModelRepository>({ relaxed: true })
+
+      const result = relaxedMock.all()
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should still throw error for unprogrammed methods in strict mode (default)', () => {
+      const strictMock = mock<ModelRepository>()
+
+      expect(() => strictMock.findById('notProgrammed')).toThrow(
+        'No match found for method <findById> called with arguments: ["notProgrammed"]'
+      )
+    })
+
+    it('should still throw error for unprogrammed methods when relaxed is explicitly false', () => {
+      const strictMock = mock<ModelRepository>({ relaxed: false })
+
+      expect(() => strictMock.findById('notProgrammed')).toThrow(
+        'No match found for method <findById> called with arguments: ["notProgrammed"]'
+      )
+    })
+
+    it('should return undefined for unprogrammed function calls in relaxed mode', () => {
+      const relaxedFunctionMock = mock<ModelRepository['findById']>({ relaxed: true })
+
+      const result = relaxedFunctionMock('notProgrammed')
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should still throw for unprogrammed function calls in strict mode', () => {
+      const strictFunctionMock = mock<ModelRepository['findById']>()
+
+      expect(() => strictFunctionMock('notProgrammed')).toThrow(
+        'No match found for function called with arguments: ["notProgrammed"]'
+      )
+    })
+
+    it('should still work with programmed methods in relaxed mode', () => {
+      const relaxedMock = mock<ModelRepository>({ relaxed: true })
+      when(relaxedMock).findById('programmed').alwaysReturn({ id: 'programmed', externalId: 'ext-programmed' })
+
+      const result = relaxedMock.findById('programmed')
+
+      expect(result).toEqual({ id: 'programmed', externalId: 'ext-programmed' })
+    })
+
+    it('should track calls for unprogrammed methods in relaxed mode', () => {
+      const relaxedMock = mock<ModelRepository>({ relaxed: true })
+
+      relaxedMock.findById('notProgrammed')
+      relaxedMock.findById('alsoNotProgrammed')
+
+      verify(relaxedMock).findById.toHaveBeenCalledWith('notProgrammed')
+      verify(relaxedMock).findById.toHaveBeenCalledWith('alsoNotProgrammed')
+      verify(relaxedMock).findById.toHaveBeenCalled(2)
+    })
+  })
 })
 
 interface User {
