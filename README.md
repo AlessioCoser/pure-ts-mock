@@ -16,7 +16,7 @@
   - [Mocking interfaces or classes](#mocking-interfaces-or-classes)
   - [Mocking Standalone Functions](#mocking-standalone-functions)
 - [API Documentation](#api-documentation)
-  - [`mock<T>(defaultProperties?)`](#mocktdefaultproperties)
+  - [`mock<T>()`](#mockt)
   - [`when(mock).method(...args)`](#whenmockmethodargs)
   - [`verify(mock).method`](#verifymockmethod)
   - [`any()` matchers](#any-matchers)
@@ -88,18 +88,15 @@ verify(mockedFindById).call.toHaveBeenCalledWith('first')
 
 ---
 
-### `mock<T>(defaultProperties?)`
+### `mock<T>()`
 Creates a mock object for the given function, interface or class.
-Optionally, and not with function mock, you can set default property values.
 
 ```typescript
 const repo = mock<ModelRepository>()
-const repoWithDefaults = mock<ModelRepository>({ property: 'default-value' })
 ```
 
 ```typescript
-type FindById = (id: string) => User | null
-const mockFn = mock<FindById>() // cannot pass any property
+const mockFn = mock<FindById>()
 ```
 
 > **Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.

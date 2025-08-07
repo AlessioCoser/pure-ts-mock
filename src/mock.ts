@@ -10,10 +10,6 @@ export type Methods<T> = {
   [K in keyof T]: T[K] extends Fn ? K : never
 }[keyof T]
 
-type AllProperties<T> = {
-  [K in keyof T as T[K] extends Fn ? never : K]: T[K]
-}
-
 type SyncMockedMethodResult<T extends Fn> = {
   args: Parameters<T>
   value: ReturnType<T>
@@ -42,8 +38,6 @@ type Calls<T> = {
   [K in Methods<T>]: Array<Parameters<Extract<T[K], Fn>>>
 }
 
-type HasProperties<T> = keyof AllProperties<T> extends never ? false : true
-
 const allMocks: Mock<any>[] = []
 
 /**
@@ -63,17 +57,13 @@ export type InternalMock<T extends object> = Mock<T> & {
 
 /**
  * Creates a mock object for the given interface, class, or function type.
- * Optionally, provide default property values for non-method fields.
  * The returned mock tracks calls and allows you to program method behaviors.
  * Function types are fully supported. For function mocks, use `.call` in `when` and `verify`.
  */
-export function mock<T extends object>(
-  defaultProperties?: HasProperties<T> extends true ? AllProperties<T> : never
-): Mock<T> {
+export function mock<T extends object>(): Mock<T> {
   const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
   const internalMock = {
-    ...(defaultProperties || {}),
     __calls,
     __mockedMethods,
     resetMock() {

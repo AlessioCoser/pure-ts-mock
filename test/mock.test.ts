@@ -59,7 +59,8 @@ describe('mock', () => {
   })
 
   it('should handle a default property value', async () => {
-    const mockedRepo = mock<ModelRepository>({ property: 'default' })
+    const mockedRepo = mock<ModelRepository>()
+    mockedRepo.property = 'default'
     expect(mockedRepo.property).toStrictEqual('default')
   })
 
