@@ -48,11 +48,13 @@ export function resetAllMocks() {
   allMocks.forEach(mock => mock.resetMock())
 }
 
+type MockMode = 'relaxed' | 'strict'
+
 export type Mock<T extends object> = T & { resetMock: () => void }
 export type InternalMock<T extends object> = Mock<T> & {
   __calls: Calls<T>
   __mockedMethods: MockedMethods<T>
-  __relaxedMode: boolean
+  __mode: MockMode
   __mockCall<K extends Methods<T>>(method: K, result: MockedMethodResult<Extract<T[K], Fn>>): void
 }
 
@@ -61,14 +63,14 @@ export type InternalMock<T extends object> = Mock<T> & {
  * The returned mock tracks calls and allows you to program method behaviors.
  * Function types are fully supported. For function mocks, use `.call` in `when` and `verify`.
  */
-export function mock<T extends object>(options?: { relaxed?: boolean }): Mock<T> {
+export function mock<T extends object>(options?: { mode?: MockMode }): Mock<T> {
   const __mockedMethods: Partial<MockedMethods<T>> = {}
   const __calls: Partial<Calls<T>> = {}
-  const __relaxedMode = options?.relaxed ?? false
+  const __mode: MockMode = options?.mode ?? 'strict'
   const internalMock = {
     __calls,
     __mockedMethods,
-    __relaxedMode,
+    __mode,
     resetMock() {
       for (const key in __calls) {
         __calls[key as keyof Calls<T>] = []
@@ -106,7 +108,7 @@ function mockFunction<T extends object>(internal: InternalMock<T>, method: Metho
     const results = internal.__mockedMethods[method] || []
     const matchingResult = results.findLast(r => equal(r.args, callArgs))
     if (!matchingResult) {
-      if (internal.__relaxedMode) {
+      if (internal.__mode === 'relaxed') {
         return undefined
       }
       throw new Error(

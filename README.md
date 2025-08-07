@@ -6,7 +6,7 @@
 <br/>[![Tests](https://github.com/AlessioCoser/pure-ts-mock/actions/workflows/tests.yml/badge.svg)](https://app.codecov.io/gh/AlessioCoser/pure-ts-mock/tests)
 [![codecov](https://codecov.io/gh/AlessioCoser/pure-ts-mock/branch/main/graph/badge.svg)](https://codecov.io/gh/AlessioCoser/pure-ts-mock)
 
-**pure-ts-mock** is a minimalist, type-safe mocking library for TypeScript. It’s expressive, framework-agnostic, and has zero dependencies. Mock interfaces, classes and functions with ease: no boilerplate, no fuss.
+**pure-ts-mock** is a minimalist, type-safe mocking library for TypeScript. It's expressive, framework-agnostic, and has zero dependencies. Mock interfaces, classes, and functions with ease: no boilerplate, no fuss.
 
 ## Table of Contents
 - [Why pure-ts-mock?](#why-pure-ts-mock)
@@ -91,9 +91,11 @@ verify(mockedFindById).call.toHaveBeenCalledWith('first')
 ### `mock<T>(options?)`
 Creates a mock object for the given function, interface or class.
 
+> **Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.
+
 #### Parameters
 - `options?` (optional): Configuration object with the following properties:
-  - `relaxed` (boolean, default: `false`): Controls the mock's behavior for unprogrammed methods
+  - `mode` (`relaxed | strict`, default: `strict`): Controls the mock's behavior for unprogrammed methods
 
 #### Usage Examples
 
@@ -101,30 +103,38 @@ Creates a mock object for the given function, interface or class.
 // Basic usage
 const repo = mock<ModelRepository>()
 const mockFn = mock<FindById>()
-
-// With relaxed option enabled
-const relaxedRepo = mock<ModelRepository>({ relaxed: true })
-const relaxedFn = mock<FindById>({ relaxed: true })
 ```
 
-**Note:** Function types are fully supported by `mock<T>()`. See [Mocking Standalone Functions](#mocking-standalone-functions) for an example.
+#### Strict and Relaxed Modes
 
+**Strict Mode (default)**: When `mode: 'strict'` or no options are provided, the mock operates in strict mode. Calling a method or function that has not been programmed with `when` and the correct input will throw an error.
 
-#### Behavior Modes
-
-**Strict Mode (default)**: When `relaxed: false` or no options are provided, the mock operates in strict mode. Calling a method or function that has not been programmed with `when` and the correct input will throw an error.
-
-**Relaxed Mode**: When `relaxed: true` is set, the mock will return `undefined` for unprogrammed methods or functions instead of throwing.
+**Relaxed Mode**: When `mode: 'relaxed'` is set, the mock will return `undefined` for unprogrammed methods or functions instead of throwing.
 
 ```typescript
 // Strict mode (default behavior)
-const strictMock = mock<MyInterface>();
+const strictMock = mock<MyInterface>({ mode: 'strict' });
 strictMock.notProgrammedMethod(); // throws Error: no match found for method <notProgrammedMethod> called with arguments: []
 
 // Relaxed mode
-const relaxedMock = mock<MyInterface>({ relaxed: true });
+const relaxedMock = mock<MyInterface>({ mode: 'relaxed' });
 relaxedMock.notProgrammedMethod(); // returns undefined
 ```
+
+**We strongly recommend using the default 'strict' mode** for most scenarios. This is why it's the default.
+
+Strict mode provides valuable feedback about your code's design and helps you create better abstractions:
+- **Forces explicit communication**: Every interaction must be intentionally programmed, making your test more precise and revealing the actual contract between components
+- **Reveals coupling issues**: If you need to mock many methods, it might indicate that your code is too tightly coupled or that your interfaces are too broad
+- **Guides toward better design**: The "pain" of mocking complex interactions often points to opportunities for refactoring and simplification
+- **Prevents silent failures**: Unprogrammed calls fail fast, helping you catch bugs early
+
+**When to use relaxed mode**:
+- **Legacy codebases**: When working with existing code that has broad interfaces or complex dependencies that are difficult to refactor immediately
+- **Gradual refactoring**: As a temporary measure while incrementally improving code design
+- **Third-party interfaces**: When mocking large external APIs where you only care about specific methods
+
+**Remember**: if you find yourself frequently needing relaxed mode, consider it a signal to refactor your code toward smaller, more focused interfaces and better separation of concerns.
 
 ---
 
