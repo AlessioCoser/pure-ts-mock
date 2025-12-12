@@ -26,6 +26,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm build
+      - run: npm config get registry
+      - run: npm whoami
       - run: pnpm publish --provenance --no-git-checks --access public
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
