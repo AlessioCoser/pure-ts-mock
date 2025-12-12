@@ -26,6 +26,7 @@
 - ✨ **Simple**: Just `mock`, `when`, `verify`, `any` and `resetAllMocks` keywords.
 - 🧑‍💻 **Expressive**: Readable, intention-revealing API.
 - 🛡 **Type-Safe**: Type-checked `mock`, `when`, `verify` with their `methods` and `arguments`.
+- 🧠 **Smart auto-suggestions**: Type-driven editor suggestions that expose only valid methods and argument shapes for your mocked types.
 - 🔌 **Framework-Agnostic**: Works with any test runner.
 - 🚫 **No Dependencies**: Pure TypeScript, zero runtime dependencies.
 
