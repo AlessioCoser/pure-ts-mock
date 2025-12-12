@@ -39,10 +39,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alessiocoser/pure-ts-mock.git"
+    "url": "https://github.com/AlessioCoser/pure-ts-mock.git"
   },
   "bugs": {
-    "url": "https://github.com/alessiocoser/pure-ts-mock/issues"
+    "url": "https://github.com/AlessioCoser/pure-ts-mock/issues"
   },
-  "homepage": "https://github.com/alessiocoser/pure-ts-mock#readme"
+  "homepage": "https://github.com/AlessioCoser/pure-ts-mock#readme"
 }
