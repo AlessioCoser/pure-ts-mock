@@ -203,16 +203,24 @@ describe('equal', () => {
   describe('any with number matchers', () => {
     it.each`
       a                            | b       | result   | description
-      ${any.number.greaterThan(6)} | ${7}    | ${true}  | ${'any number greater than matches'}
-      ${any.number.greaterThan(6)} | ${6}    | ${false} | ${'any number greater than not matches'}
-      ${any.number.lowerThan(6)}   | ${5}    | ${true}  | ${'any number lower than matches'}
-      ${any.number.lowerThan(6)}   | ${6}    | ${false} | ${'any number lower than not matches'}
-      ${any.number.positive()}     | ${1}    | ${true}  | ${'any positive number matches'}
-      ${any.number.positive()}     | ${0}    | ${true}  | ${'zero is positive'}
-      ${any.number.positive()}     | ${-1}   | ${false} | ${'negative number is not positive'}
-      ${any.number.negative()}     | ${-1}   | ${true}  | ${'any negative number matches'}
-      ${any.number.negative()}     | ${0}    | ${false} | ${'zero is not negative'}
-      ${any.number.negative()}     | ${1}    | ${false} | ${'positive number is not negative'}
+      ${any.number.greaterThan(6)} | ${7}         | ${true}  | ${'any number greater than matches'}
+      ${any.number.greaterThan(6)} | ${6}         | ${false} | ${'any number greater than not matches'}
+      ${any.number.greaterThan(6)} | ${'7'}       | ${false} | ${'any string greaterThan number not matches'}
+      ${any.number.greaterThan(6)} | ${undefined} | ${false} | ${'any undefined greaterThan number not matches'}
+      ${any.number.lowerThan(6)}   | ${5}         | ${true}  | ${'any number lower than matches'}
+      ${any.number.lowerThan(6)}   | ${6}         | ${false} | ${'any number lower than not matches'}
+      ${any.number.lowerThan(6)}   | ${'5'}       | ${false} | ${'any string lowerThan number not matches'}
+      ${any.number.lowerThan(6)}   | ${undefined} | ${false} | ${'any undefined lowerThan number not matches'}
+      ${any.number.positive()}     | ${1}         | ${true}  | ${'any positive number matches'}
+      ${any.number.positive()}     | ${0}         | ${true}  | ${'zero is positive'}
+      ${any.number.positive()}     | ${-1}        | ${false} | ${'negative number is not positive'}
+      ${any.number.positive()}     | ${'1'}       | ${false} | ${'any string positive number not matches'}
+      ${any.number.positive()}     | ${undefined} | ${false} | ${'any undefined positive number not matches'}
+      ${any.number.negative()}     | ${-1}        | ${true}  | ${'any negative number matches'}
+      ${any.number.negative()}     | ${0}         | ${false} | ${'zero is not negative'}
+      ${any.number.negative()}     | ${1}         | ${false} | ${'positive number is not negative'}
+      ${any.number.negative()}     | ${'-1'}      | ${false} | ${'any string negative number not matches'}
+      ${any.number.negative()}     | ${undefined} | ${false} | ${'any undefined negative number not matches'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
