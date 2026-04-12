@@ -12,7 +12,7 @@ export function equal(a: any, b: any): boolean {
   if (a && b && typeof a == 'object' && typeof b == 'object') {
     if (a.constructor !== b.constructor) return false
 
-    var length, i, keys
+    let length, i
     if (Array.isArray(a)) {
       length = a.length
       if (length !== b.length) return false
@@ -46,7 +46,7 @@ export function equal(a: any, b: any): boolean {
     if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf()
     if (a.toString !== Object.prototype.toString) return a.toString() === b.toString()
 
-    keys = Object.keys(a)
+    const keys = Object.keys(a)
     length = keys.length
     if (length !== Object.keys(b).length) return false
     for (i = 0; i < length; i++) {
