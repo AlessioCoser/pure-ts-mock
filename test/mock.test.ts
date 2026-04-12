@@ -199,6 +199,18 @@ describe('mock', () => {
     verify(mockedRepo).all.toHaveBeenCalled()
   })
 
+  it('should mock an object inferred type', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const realService = { findById: (id: string): User | null => null }
+    const mockedService = mock<typeof realService>()
+    when(mockedService).findById('first').alwaysReturn({ id: 'first', name: 'Thor' })
+
+    const result = mockedService.findById('first')
+
+    expect(result).toEqual({ id: 'first', name: 'Thor' })
+    verify(mockedService).findById.toHaveBeenCalledWith('first')
+  })
+
   it('should mock a sync function', async () => {
     const mockedFindById = mock<UserRepository['findById']>()
 

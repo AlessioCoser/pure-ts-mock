@@ -68,6 +68,17 @@ mockedRepo.findById('first')
 verify(mockedRepo).findById.toHaveBeenCalledWith('first')
 ```
 
+You don't need an explicit interface. You can mock directly from a class or an object's inferred type:
+
+```typescript
+// From a class:
+const mockedRepo = mock<UserRepositoryImplementation>()
+
+// From an object's type:
+const realService = { findById: (id: string): User | null => { /* ... */ } }
+const mockedService = mock<typeof realService>()
+```
+
 ## Mocking standalone functions
 
 ```typescript
