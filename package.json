@@ -38,6 +38,7 @@
     "minimal",
     "framework-agnostic"
   ],
+  "packageManager": "pnpm@10.13.1",
   "author": "Alessio Coser",
   "license": "MIT",
   "repository": {
