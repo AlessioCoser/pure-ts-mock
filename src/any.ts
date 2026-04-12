@@ -77,6 +77,18 @@ export const any = Object.assign(anyMatcher, {
   instanceOf: <T>(ctor: new (...args: any[]) => T) =>
     Any.matcher<T>(actual => actual instanceof ctor, `any.instanceOf(${ctor.name})`),
   /**
+   * Matches any Date instance.
+   */
+  date: () => Any.matcher<Date>(actual => actual instanceof Date, 'any.date()'),
+  /**
+   * Matches any truthy value.
+   */
+  truthy: () => Any.matcher(actual => !!actual, 'any.truthy()'),
+  /**
+   * Matches any falsy value.
+   */
+  falsy: () => Any.matcher(actual => !actual, 'any.falsy()'),
+  /**
    * Matches any string that is a valid UUID (version 1-5).
    * @example
    * any.uuid()

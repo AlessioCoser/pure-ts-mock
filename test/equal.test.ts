@@ -152,8 +152,24 @@ describe('equal', () => {
       ${any.set()}     | ${new Set([1, 2, 3])}      | ${true}  | ${'any.set() match'}
       ${any.set()}     | ${new Map([['k1', 'v1']])} | ${false} | ${'any.set() no-match'}
       ${any.set()}     | ${[1, 2, 3]}               | ${false} | ${'any.set() array no-match'}
-      ${any.uuid()}    | ${validUuid}               | ${true}  | ${'any.uuid() match'}
-      ${any.uuid()}    | ${'non-uuid'}              | ${false} | ${'any.uuid() no-match'}
+      ${any.date()}     | ${new Date()}              | ${true}  | ${'any.date() match'}
+      ${any.date()}     | ${'2024-01-01'}            | ${false} | ${'any.date() string no-match'}
+      ${any.date()}     | ${123456}                  | ${false} | ${'any.date() number no-match'}
+      ${any.truthy()}   | ${1}                       | ${true}  | ${'any.truthy() with 1'}
+      ${any.truthy()}   | ${'text'}                  | ${true}  | ${'any.truthy() with string'}
+      ${any.truthy()}   | ${{}}                      | ${true}  | ${'any.truthy() with object'}
+      ${any.truthy()}   | ${0}                       | ${false} | ${'any.truthy() with 0'}
+      ${any.truthy()}   | ${''}                      | ${false} | ${'any.truthy() with empty string'}
+      ${any.truthy()}   | ${null}                    | ${false} | ${'any.truthy() with null'}
+      ${any.truthy()}   | ${undefined}               | ${false} | ${'any.truthy() with undefined'}
+      ${any.falsy()}    | ${0}                       | ${true}  | ${'any.falsy() with 0'}
+      ${any.falsy()}    | ${''}                      | ${true}  | ${'any.falsy() with empty string'}
+      ${any.falsy()}    | ${null}                    | ${true}  | ${'any.falsy() with null'}
+      ${any.falsy()}    | ${undefined}               | ${true}  | ${'any.falsy() with undefined'}
+      ${any.falsy()}    | ${1}                       | ${false} | ${'any.falsy() with 1'}
+      ${any.falsy()}    | ${'text'}                  | ${false} | ${'any.falsy() with string'}
+      ${any.uuid()}     | ${validUuid}               | ${true}  | ${'any.uuid() match'}
+      ${any.uuid()}     | ${'non-uuid'}              | ${false} | ${'any.uuid() no-match'}
       ${any()}         | ${'text'}                  | ${true}  | ${'any() with string match'}
       ${any()}         | ${123456}                  | ${true}  | ${'any() with number match'}
       ${any()}         | ${true}                    | ${true}  | ${'any() with boolean match'}
