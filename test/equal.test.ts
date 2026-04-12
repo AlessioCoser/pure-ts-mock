@@ -212,7 +212,7 @@ describe('equal', () => {
       ${any.number.lowerThan(6)}   | ${'5'}       | ${false} | ${'any string lowerThan number not matches'}
       ${any.number.lowerThan(6)}   | ${undefined} | ${false} | ${'any undefined lowerThan number not matches'}
       ${any.number.positive()}     | ${1}         | ${true}  | ${'any positive number matches'}
-      ${any.number.positive()}     | ${0}         | ${true}  | ${'zero is positive'}
+      ${any.number.positive()}     | ${0}         | ${false} | ${'zero is not positive'}
       ${any.number.positive()}     | ${-1}        | ${false} | ${'negative number is not positive'}
       ${any.number.positive()}     | ${'1'}       | ${false} | ${'any string positive number not matches'}
       ${any.number.positive()}     | ${undefined} | ${false} | ${'any undefined positive number not matches'}

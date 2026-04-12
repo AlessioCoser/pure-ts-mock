@@ -7,6 +7,6 @@ export const numberMatchers = Object.assign(anyNumberMatcher, {
     Any.matcher<number>(actual => typeof actual === 'number' && actual > value, `any.number.greaterThan(${value})`),
   lowerThan: (value: number) =>
     Any.matcher<number>(actual => typeof actual === 'number' && actual < value, `any.number.lowerThan(${value})`),
-  positive: () => Any.matcher<number>(actual => typeof actual === 'number' && actual >= 0, 'any.number.positive()'),
+  positive: () => Any.matcher<number>(actual => typeof actual === 'number' && actual > 0, 'any.number.positive()'),
   negative: () => Any.matcher<number>(actual => typeof actual === 'number' && actual < 0, 'any.number.negative()'),
 })

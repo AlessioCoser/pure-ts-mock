@@ -227,7 +227,7 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.number()` — matches any number
 - `any.number.greaterThan(value)` — matches numbers greater than `value`
 - `any.number.lowerThan(value)` — matches numbers lower than `value`
-- `any.number.positive()` — matches positive numbers (>= 0)
+- `any.number.positive()` — matches positive numbers (> 0)
 - `any.number.negative()` — matches negative numbers (< 0)
 - `any.boolean()` — matches any boolean
 - `any.function()` — matches any function
