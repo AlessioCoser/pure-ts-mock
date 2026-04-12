@@ -269,6 +269,37 @@ describe('equal', () => {
       expect(equal(b, a)).toBe(false)
     })
   })
+
+  describe('any.object.containing', () => {
+    it('should match object with extra properties', () => {
+      const matcher = any.object.containing({ id: 'first' })
+      expect(equal(matcher, { id: 'first', name: 'Thor', age: 30 })).toBe(true)
+    })
+
+    it('should not match when required property is missing', () => {
+      const matcher = any.object.containing({ id: 'first' })
+      expect(equal(matcher, { name: 'Thor' })).toBe(false)
+    })
+
+    it('should not match when property value differs', () => {
+      const matcher = any.object.containing({ id: 'first' })
+      expect(equal(matcher, { id: 'second', name: 'Thor' })).toBe(false)
+    })
+
+    it('should support nested matchers', () => {
+      const matcher = any.object.containing({ id: any.string(), value: any.number.greaterThan(5) })
+      expect(equal(matcher, { id: 'abc', value: 10, extra: true })).toBe(true)
+      expect(equal(matcher, { id: 'abc', value: 3, extra: true })).toBe(false)
+    })
+
+    it('should not match non-objects', () => {
+      const matcher = any.object.containing({ id: 'first' })
+      expect(equal(matcher, 'string')).toBe(false)
+      expect(equal(matcher, null)).toBe(false)
+      expect(equal(matcher, undefined)).toBe(false)
+      expect(equal(matcher, 42)).toBe(false)
+    })
+  })
 })
 
 function func1() {}

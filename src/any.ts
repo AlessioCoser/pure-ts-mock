@@ -1,6 +1,11 @@
 import { stringMatchers } from './matchers/string-matchers'
 import { Any } from './matchers/any-matcher'
 import { numberMatchers } from './matchers/number-matchers'
+import { objectMatchers } from './matchers/object-matchers'
+
+const anyMatcher = <T = any>(matchFn?: (actual: any) => boolean) => {
+  return matchFn ? Any.matcher<T>(matchFn, `any(${matchFn.toString()})`) : Any.matcher<T>()
+}
 
 /**
  * Provides flexible matchers for arguments and object properties in mocks and verifications.
@@ -18,10 +23,6 @@ import { numberMatchers } from './matchers/number-matchers'
  * any.uuid()
  * any<number>(actual => actual > 5) // custom matcher "greater than 5"
  */
-const anyMatcher = <T = any>(matchFn?: (actual: any) => boolean) => {
-  return matchFn ? Any.matcher<T>(matchFn, `any(${matchFn.toString()})`) : Any.matcher<T>()
-}
-
 export const any = Object.assign(anyMatcher, {
   /**
    * Matcher for any string value.
@@ -46,6 +47,13 @@ export const any = Object.assign(anyMatcher, {
    */
   number: numberMatchers,
   /**
+   * Matches any object (not array), with optional sub-matchers.
+   * @example
+   * any.object()
+   * any.object.containing({ id: any.string() })
+   */
+  object: objectMatchers,
+  /**
    * Matches any boolean value.
    */
   boolean: () => Any.matcher<boolean>(actual => typeof actual === 'boolean', 'any.boolean()'),
@@ -53,11 +61,6 @@ export const any = Object.assign(anyMatcher, {
    * Matches any function value.
    */
   function: () => Any.matcher<Function>(actual => typeof actual === 'function', 'any.function()'),
-  /**
-   * Matches any object (not array).
-   */
-  object: () =>
-    Any.matcher<object>(actual => typeof actual === 'object' && actual !== null && !Array.isArray(actual), 'any.object()'),
   /**
    * Matches any array value.
    */

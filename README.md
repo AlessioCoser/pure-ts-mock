@@ -232,6 +232,7 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.boolean()` — matches any boolean
 - `any.function()` — matches any function
 - `any.object()` — matches any object (not array)
+- `any.object.containing(partial)` — matches any object containing at least the specified properties (supports nested matchers)
 - `any.array()` — matches any array
 - `any.map()` — matches any Map
 - `any.set()` — matches any Set
