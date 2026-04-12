@@ -386,6 +386,24 @@ describe('mock', () => {
       verifier.toHaveBeenCalledWith('after')
     })
   })
+
+  describe('matcher labels in error messages', () => {
+    it('should show matcher label instead of empty object in verify error', () => {
+      const repo = mock<ModelRepository>()
+
+      expect(() => verify(repo).findById.toHaveBeenCalledWith(any.string())).toThrow(
+        'Expected method <findById> to be called with arguments:\n["any.string()"]\nBut it was not called.'
+      )
+    })
+
+    it('should show custom matcher predicate in verify error', () => {
+      const repo = mock<ModelRepository>()
+
+      expect(() => verify(repo).findById.toHaveBeenCalledWith(any<string>(actual => actual.length > 3))).toThrow(
+        'Expected method <findById> to be called with arguments:\n["any((actual) => actual.length > 3)"]\nBut it was not called.'
+      )
+    })
+  })
 })
 
 interface User {

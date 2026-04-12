@@ -18,7 +18,11 @@ import { numberMatchers } from './matchers/number-matchers'
  * any.uuid()
  * any<number>(actual => actual > 5) // custom matcher "greater than 5"
  */
-export const any = Object.assign(Any.matcher, {
+const anyMatcher = <T = any>(matchFn?: (actual: any) => boolean) => {
+  return matchFn ? Any.matcher<T>(matchFn, `any(${matchFn.toString()})`) : Any.matcher<T>()
+}
+
+export const any = Object.assign(anyMatcher, {
   /**
    * Matcher for any string value.
    *
@@ -44,37 +48,41 @@ export const any = Object.assign(Any.matcher, {
   /**
    * Matches any boolean value.
    */
-  boolean: () => Any.matcher<boolean>(actual => typeof actual === 'boolean'),
+  boolean: () => Any.matcher<boolean>(actual => typeof actual === 'boolean', 'any.boolean()'),
   /**
    * Matches any function value.
    */
-  function: () => Any.matcher<Function>(actual => typeof actual === 'function'),
+  function: () => Any.matcher<Function>(actual => typeof actual === 'function', 'any.function()'),
   /**
    * Matches any object (not array).
    */
-  object: () => Any.matcher<object>(actual => typeof actual === 'object' && actual !== null && !Array.isArray(actual)),
+  object: () =>
+    Any.matcher<object>(actual => typeof actual === 'object' && actual !== null && !Array.isArray(actual), 'any.object()'),
   /**
    * Matches any array value.
    */
-  array: () => Any.matcher<any[]>(actual => Array.isArray(actual)),
+  array: () => Any.matcher<any[]>(actual => Array.isArray(actual), 'any.array()'),
   /**
    * Matches any Map instance.
    */
-  map: () => Any.matcher<Map<any, any>>(actual => actual instanceof Map),
+  map: () => Any.matcher<Map<any, any>>(actual => actual instanceof Map, 'any.map()'),
   /**
    * Matches any instance of the given class (including subclasses).
    * @param ctor The constructor to match against.
    */
-  instanceOf: <T>(ctor: new (...args: any[]) => T) => Any.matcher<T>(actual => actual instanceof ctor),
+  instanceOf: <T>(ctor: new (...args: any[]) => T) =>
+    Any.matcher<T>(actual => actual instanceof ctor, `any.instanceOf(${ctor.name})`),
   /**
    * Matches any string that is a valid UUID (version 1-5).
    * @example
    * any.uuid()
    */
   uuid: () =>
-    Any.matcher<string>(actual =>
-      new RegExp(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/).test(
-        String(actual)
-      )
+    Any.matcher<string>(
+      actual =>
+        new RegExp(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/).test(
+          String(actual)
+        ),
+      'any.uuid()'
     ),
 })

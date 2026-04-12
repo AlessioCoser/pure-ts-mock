@@ -1,12 +1,19 @@
 export class Any<T> {
-  private constructor(private readonly matchFn: (actual: T) => boolean) {}
+  private constructor(
+    private readonly matchFn: (actual: T) => boolean,
+    private readonly label: string
+  ) {}
 
   match(actual: any) {
     return this.matchFn(actual)
   }
 
-  static matcher<T = any>(matchFn: (actual: any) => boolean = () => true) {
-    return new Any<T>(matchFn)
+  toJSON() {
+    return this.label
+  }
+
+  static matcher<T = any>(matchFn: (actual: any) => boolean = () => true, label: string = 'any()') {
+    return new Any<T>(matchFn, label)
   }
 }
 
