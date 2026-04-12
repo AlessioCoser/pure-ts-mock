@@ -374,6 +374,18 @@ describe('mock', () => {
       verify(relaxedMock).findById.toHaveBeenCalled(2)
     })
   })
+
+  describe('verify reads calls lazily at assertion time', () => {
+    it('should see calls made after verify accessor is captured', () => {
+      const repo = mock<ModelRepository>()
+      when(repo).findById(any()).alwaysReturn({ id: '1', externalId: 'ext-1' })
+
+      const verifier = verify(repo).findById
+      repo.findById('after')
+
+      verifier.toHaveBeenCalledWith('after')
+    })
+  })
 })
 
 interface User {
