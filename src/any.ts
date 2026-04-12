@@ -67,6 +67,10 @@ export const any = Object.assign(anyMatcher, {
    */
   map: () => Any.matcher<Map<any, any>>(actual => actual instanceof Map, 'any.map()'),
   /**
+   * Matches any Set instance.
+   */
+  set: () => Any.matcher<Set<any>>(actual => actual instanceof Set, 'any.set()'),
+  /**
    * Matches any instance of the given class (including subclasses).
    * @param ctor The constructor to match against.
    */

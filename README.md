@@ -234,6 +234,7 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.object()` — matches any object (not array)
 - `any.array()` — matches any array
 - `any.map()` — matches any Map
+- `any.set()` — matches any Set
 - `any.instanceOf(Class)` — matches any instance of the given class (including subclasses)
 - `any.uuid()` — matches any uuid-like string
 

@@ -149,6 +149,9 @@ describe('equal', () => {
       ${any.array()}   | ${'invalid'}               | ${false} | ${'any.array() no-match'}
       ${any.map()}     | ${new Map([['k1', 'v1']])} | ${true}  | ${'any.map() match'}
       ${any.map()}     | ${new Set(['k1', 'v1'])}   | ${false} | ${'any.map() no-match'}
+      ${any.set()}     | ${new Set([1, 2, 3])}      | ${true}  | ${'any.set() match'}
+      ${any.set()}     | ${new Map([['k1', 'v1']])} | ${false} | ${'any.set() no-match'}
+      ${any.set()}     | ${[1, 2, 3]}               | ${false} | ${'any.set() array no-match'}
       ${any.uuid()}    | ${validUuid}               | ${true}  | ${'any.uuid() match'}
       ${any.uuid()}    | ${'non-uuid'}              | ${false} | ${'any.uuid() no-match'}
       ${any()}         | ${'text'}                  | ${true}  | ${'any() with string match'}
