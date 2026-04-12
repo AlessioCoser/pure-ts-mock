@@ -2,6 +2,7 @@ import { stringMatchers } from './matchers/string-matchers'
 import { Any } from './matchers/any-matcher'
 import { numberMatchers } from './matchers/number-matchers'
 import { objectMatchers } from './matchers/object-matchers'
+import { arrayMatchers } from './matchers/array-matchers'
 
 const anyMatcher = <T = any>(matchFn?: (actual: any) => boolean) => {
   return matchFn ? Any.matcher<T>(matchFn, `any(${matchFn.toString()})`) : Any.matcher<T>()
@@ -26,7 +27,6 @@ const anyMatcher = <T = any>(matchFn?: (actual: any) => boolean) => {
 export const any = Object.assign(anyMatcher, {
   /**
    * Matcher for any string value.
-   *
    * @example
    * any.string()
    * any.string.includes('foo')
@@ -37,7 +37,6 @@ export const any = Object.assign(anyMatcher, {
   string: stringMatchers,
   /**
    * Matcher for any number value.
-   *
    * @example
    * any.number()
    * any.number.greaterThan(5)
@@ -54,6 +53,15 @@ export const any = Object.assign(anyMatcher, {
    */
   object: objectMatchers,
   /**
+   * Matches any array value, with optional sub-matchers.
+   * @example
+   * any.array()
+   * any.array.ofLength(3)
+   * any.array.containing([1, 2])
+   * any.array.containingExactly([3, 1, 2])
+   */
+  array: arrayMatchers,
+  /**
    * Matches any boolean value.
    */
   boolean: () => Any.matcher<boolean>(actual => typeof actual === 'boolean', 'any.boolean()'),
@@ -61,10 +69,6 @@ export const any = Object.assign(anyMatcher, {
    * Matches any function value.
    */
   function: () => Any.matcher<Function>(actual => typeof actual === 'function', 'any.function()'),
-  /**
-   * Matches any array value.
-   */
-  array: () => Any.matcher<any[]>(actual => Array.isArray(actual), 'any.array()'),
   /**
    * Matches any Map instance.
    */

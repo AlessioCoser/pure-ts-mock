@@ -108,7 +108,7 @@ Strict mode provides valuable feedback about your code's design and helps you cr
 - **Prevents silent failures**: Unprogrammed calls fail fast, helping you catch bugs early
 
 Relaxed mode should be used with caution, but it can be useful in specific scenarios.
-One example is when working with **legacy codebases** that have broad interfaces or complex dependencies that are difficult to refactor immediately. 
+One example is when working with **legacy codebases** that have broad interfaces or complex dependencies that are difficult to refactor immediately.
 It can also be used as a temporary measure while incrementally improving code design.
 
 **Remember**: if you find yourself frequently needing relaxed mode, consider it a signal to refactor your code toward smaller, more focused interfaces and better separation of concerns.
@@ -234,6 +234,9 @@ pure-ts-mock provides flexible matchers for arguments and object properties usin
 - `any.object()` — matches any object (not array)
 - `any.object.containing(partial)` — matches any object containing at least the specified properties (supports nested matchers)
 - `any.array()` — matches any array
+- `any.array.ofLength(n)` — matches arrays of exact length
+- `any.array.containing(items)` — matches arrays containing at least the specified elements (any order)
+- `any.array.containingExactly(items)` — matches arrays with exactly the specified elements (any order)
 - `any.map()` — matches any Map
 - `any.set()` — matches any Set
 - `any.date()` — matches any Date instance

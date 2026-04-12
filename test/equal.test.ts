@@ -300,6 +300,77 @@ describe('equal', () => {
       expect(equal(matcher, 42)).toBe(false)
     })
   })
+
+  describe('any.array sub-matchers', () => {
+    describe('any.array.containing', () => {
+      it('should match array containing all expected elements', () => {
+        expect(equal(any.array.containing([1, 2]), [1, 2, 3])).toBe(true)
+      })
+
+      it('should match regardless of order', () => {
+        expect(equal(any.array.containing([3, 1]), [1, 2, 3])).toBe(true)
+      })
+
+      it('should not match when element is missing', () => {
+        expect(equal(any.array.containing([1, 4]), [1, 2, 3])).toBe(false)
+      })
+
+      it('should support nested matchers', () => {
+        expect(equal(any.array.containing([any.number.greaterThan(5)]), [1, 2, 10])).toBe(true)
+        expect(equal(any.array.containing([any.number.greaterThan(5)]), [1, 2, 3])).toBe(false)
+      })
+
+      it('should not match non-arrays', () => {
+        expect(equal(any.array.containing([1]), 'string')).toBe(false)
+        expect(equal(any.array.containing([1]), null)).toBe(false)
+      })
+    })
+
+    describe('any.array.ofLength', () => {
+      it('should match array of exact length', () => {
+        expect(equal(any.array.ofLength(3), [1, 2, 3])).toBe(true)
+      })
+
+      it('should not match array of different length', () => {
+        expect(equal(any.array.ofLength(3), [1, 2])).toBe(false)
+        expect(equal(any.array.ofLength(3), [1, 2, 3, 4])).toBe(false)
+      })
+
+      it('should not match non-arrays', () => {
+        expect(equal(any.array.ofLength(0), '')).toBe(false)
+      })
+    })
+
+    describe('any.array.containingExactly', () => {
+      it('should match same elements in different order', () => {
+        expect(equal(any.array.containingExactly([3, 1, 2]), [1, 2, 3])).toBe(true)
+      })
+
+      it('should match same elements in same order', () => {
+        expect(equal(any.array.containingExactly([1, 2, 3]), [1, 2, 3])).toBe(true)
+      })
+
+      it('should not match when extra elements exist', () => {
+        expect(equal(any.array.containingExactly([1, 2]), [1, 2, 3])).toBe(false)
+      })
+
+      it('should not match when elements are missing', () => {
+        expect(equal(any.array.containingExactly([1, 2, 3]), [1, 2])).toBe(false)
+      })
+
+      it('should not match when element values differ', () => {
+        expect(equal(any.array.containingExactly([1, 2, 4]), [1, 2, 3])).toBe(false)
+      })
+
+      it('should support nested matchers', () => {
+        expect(equal(any.array.containingExactly([any.string(), 1]), [1, 'hello'])).toBe(true)
+      })
+
+      it('should not match non-arrays', () => {
+        expect(equal(any.array.containingExactly([1]), 'string')).toBe(false)
+      })
+    })
+  })
 })
 
 function func1() {}
