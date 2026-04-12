@@ -132,26 +132,26 @@ describe('equal', () => {
     const validUuid = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
 
     it.each`
-      a                | b                          | result   | description
-      ${any.string()}  | ${'text'}                  | ${true}  | ${'any.string() match'}
-      ${any.string()}  | ${true}                    | ${false} | ${'any.string() no-match'}
-      ${any.number()}  | ${123456}                  | ${true}  | ${'any.number() match'}
-      ${any.number()}  | ${'invalid'}               | ${false} | ${'any.number() no-match'}
-      ${123}           | ${any.number()}            | ${true}  | ${'b is any.number(), a is number value'}
-      ${any.boolean()} | ${true}                    | ${true}  | ${'any.boolean() match'}
-      ${any.boolean()} | ${'invalid'}               | ${false} | ${'any.boolean() no-match'}
-      ${any.function()}| ${arrowFunc1}              | ${true}  | ${'any.function() with () => {} match'}
-      ${any.function()}| ${func1}                   | ${true}  | ${'any.function() with fn match'}
-      ${any.function()}| ${'invalid'}               | ${false} | ${'any.function() no-match'}
-      ${any.object()}  | ${{ a: '1' }}              | ${true}  | ${'any.object() match'}
-      ${any.object()}  | ${'invalid'}               | ${false} | ${'any.object() no-match'}
-      ${any.array()}   | ${[1, 2, 3]}               | ${true}  | ${'any.array() match'}
-      ${any.array()}   | ${'invalid'}               | ${false} | ${'any.array() no-match'}
-      ${any.map()}     | ${new Map([['k1', 'v1']])} | ${true}  | ${'any.map() match'}
-      ${any.map()}     | ${new Set(['k1', 'v1'])}   | ${false} | ${'any.map() no-match'}
-      ${any.set()}     | ${new Set([1, 2, 3])}      | ${true}  | ${'any.set() match'}
-      ${any.set()}     | ${new Map([['k1', 'v1']])} | ${false} | ${'any.set() no-match'}
-      ${any.set()}     | ${[1, 2, 3]}               | ${false} | ${'any.set() array no-match'}
+      a                 | b                          | result   | description
+      ${any.string()}   | ${'text'}                  | ${true}  | ${'any.string() match'}
+      ${any.string()}   | ${true}                    | ${false} | ${'any.string() no-match'}
+      ${any.number()}   | ${123456}                  | ${true}  | ${'any.number() match'}
+      ${any.number()}   | ${'invalid'}               | ${false} | ${'any.number() no-match'}
+      ${123}            | ${any.number()}            | ${true}  | ${'b is any.number(), a is number value'}
+      ${any.boolean()}  | ${true}                    | ${true}  | ${'any.boolean() match'}
+      ${any.boolean()}  | ${'invalid'}               | ${false} | ${'any.boolean() no-match'}
+      ${any.function()} | ${arrowFunc1}              | ${true}  | ${'any.function() with () => {} match'}
+      ${any.function()} | ${func1}                   | ${true}  | ${'any.function() with fn match'}
+      ${any.function()} | ${'invalid'}               | ${false} | ${'any.function() no-match'}
+      ${any.object()}   | ${{ a: '1' }}              | ${true}  | ${'any.object() match'}
+      ${any.object()}   | ${'invalid'}               | ${false} | ${'any.object() no-match'}
+      ${any.array()}    | ${[1, 2, 3]}               | ${true}  | ${'any.array() match'}
+      ${any.array()}    | ${'invalid'}               | ${false} | ${'any.array() no-match'}
+      ${any.map()}      | ${new Map([['k1', 'v1']])} | ${true}  | ${'any.map() match'}
+      ${any.map()}      | ${new Set(['k1', 'v1'])}   | ${false} | ${'any.map() no-match'}
+      ${any.set()}      | ${new Set([1, 2, 3])}      | ${true}  | ${'any.set() match'}
+      ${any.set()}      | ${new Map([['k1', 'v1']])} | ${false} | ${'any.set() no-match'}
+      ${any.set()}      | ${[1, 2, 3]}               | ${false} | ${'any.set() array no-match'}
       ${any.date()}     | ${new Date()}              | ${true}  | ${'any.date() match'}
       ${any.date()}     | ${'2024-01-01'}            | ${false} | ${'any.date() string no-match'}
       ${any.date()}     | ${123456}                  | ${false} | ${'any.date() number no-match'}
@@ -170,15 +170,15 @@ describe('equal', () => {
       ${any.falsy()}    | ${'text'}                  | ${false} | ${'any.falsy() with string'}
       ${any.uuid()}     | ${validUuid}               | ${true}  | ${'any.uuid() match'}
       ${any.uuid()}     | ${'non-uuid'}              | ${false} | ${'any.uuid() no-match'}
-      ${any()}         | ${'text'}                  | ${true}  | ${'any() with string match'}
-      ${any()}         | ${123456}                  | ${true}  | ${'any() with number match'}
-      ${any()}         | ${true}                    | ${true}  | ${'any() with boolean match'}
-      ${any()}         | ${{ a: 1 }}                | ${true}  | ${'any() with object match'}
-      ${any()}         | ${[1, 2]}                  | ${true}  | ${'any() with array match'}
-      ${any()}         | ${func1}                   | ${true}  | ${'any() with function match'}
-      ${any()}         | ${arrowFunc1}              | ${true}  | ${'any() with arrow-function match'}
-      ${any()}         | ${null}                    | ${true}  | ${'any() with null match'}
-      ${any()}         | ${undefined}               | ${true}  | ${'any() with undefined match'}
+      ${any()}          | ${'text'}                  | ${true}  | ${'any() with string match'}
+      ${any()}          | ${123456}                  | ${true}  | ${'any() with number match'}
+      ${any()}          | ${true}                    | ${true}  | ${'any() with boolean match'}
+      ${any()}          | ${{ a: 1 }}                | ${true}  | ${'any() with object match'}
+      ${any()}          | ${[1, 2]}                  | ${true}  | ${'any() with array match'}
+      ${any()}          | ${func1}                   | ${true}  | ${'any() with function match'}
+      ${any()}          | ${arrowFunc1}              | ${true}  | ${'any() with arrow-function match'}
+      ${any()}          | ${null}                    | ${true}  | ${'any() with null match'}
+      ${any()}          | ${undefined}               | ${true}  | ${'any() with undefined match'}
     `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
@@ -206,11 +206,11 @@ describe('equal', () => {
       ${any.string.startsWith('start')}  | ${'not-start'}     | ${false} | ${'any string startsWith with same suffix'}
       ${any.string.startsWith('start')}  | ${6}               | ${false} | ${'any number startsWith string not matches'}
       ${any.string.startsWith('start')}  | ${undefined}       | ${false} | ${'any undefined startsWith string not matches'}
-      ${any.string.endsWith('end')}      | ${'end'}     | ${true}  | ${'any string endsWith exact match'}
-      ${any.string.endsWith('end')}      | ${'the-end'} | ${true}  | ${'any string endsWith with same suffix'}
-      ${any.string.endsWith('end')}      | ${'ending'}  | ${false} | ${'any string endsWith with same prefix'}
-      ${any.string.endsWith('end')}      | ${6}         | ${false} | ${'any number endsWith string not matches'}
-      ${any.string.endsWith('end')}      | ${undefined} | ${false} | ${'any undefined endsWith string not matches'}
+      ${any.string.endsWith('end')}      | ${'end'}           | ${true}  | ${'any string endsWith exact match'}
+      ${any.string.endsWith('end')}      | ${'the-end'}       | ${true}  | ${'any string endsWith with same suffix'}
+      ${any.string.endsWith('end')}      | ${'ending'}        | ${false} | ${'any string endsWith with same prefix'}
+      ${any.string.endsWith('end')}      | ${6}               | ${false} | ${'any number endsWith string not matches'}
+      ${any.string.endsWith('end')}      | ${undefined}       | ${false} | ${'any undefined endsWith string not matches'}
       ${any.string.match(/^start/)}      | ${'start'}         | ${true}  | ${'any string match exact match'}
       ${any.string.match(/^start/)}      | ${'starting-with'} | ${true}  | ${'any string match with same suffix'}
       ${any.string.match(/^start/)}      | ${'not-start'}     | ${false} | ${'any string match with same prefix'}
@@ -221,7 +221,7 @@ describe('equal', () => {
 
   describe('any with number matchers', () => {
     it.each`
-      a                            | b       | result   | description
+      a                            | b            | result   | description
       ${any.number.greaterThan(6)} | ${7}         | ${true}  | ${'any number greater than matches'}
       ${any.number.greaterThan(6)} | ${6}         | ${false} | ${'any number greater than not matches'}
       ${any.number.greaterThan(6)} | ${'7'}       | ${false} | ${'any string greaterThan number not matches'}
@@ -270,106 +270,43 @@ describe('equal', () => {
     })
   })
 
-  describe('any.object.containing', () => {
-    it('should match object with extra properties', () => {
-      const matcher = any.object.containing({ id: 'first' })
-      expect(equal(matcher, { id: 'first', name: 'Thor', age: 30 })).toBe(true)
-    })
-
-    it('should not match when required property is missing', () => {
-      const matcher = any.object.containing({ id: 'first' })
-      expect(equal(matcher, { name: 'Thor' })).toBe(false)
-    })
-
-    it('should not match when property value differs', () => {
-      const matcher = any.object.containing({ id: 'first' })
-      expect(equal(matcher, { id: 'second', name: 'Thor' })).toBe(false)
-    })
-
-    it('should support nested matchers', () => {
-      const matcher = any.object.containing({ id: any.string(), value: any.number.greaterThan(5) })
-      expect(equal(matcher, { id: 'abc', value: 10, extra: true })).toBe(true)
-      expect(equal(matcher, { id: 'abc', value: 3, extra: true })).toBe(false)
-    })
-
-    it('should not match non-objects', () => {
-      const matcher = any.object.containing({ id: 'first' })
-      expect(equal(matcher, 'string')).toBe(false)
-      expect(equal(matcher, null)).toBe(false)
-      expect(equal(matcher, undefined)).toBe(false)
-      expect(equal(matcher, 42)).toBe(false)
-    })
+  describe('any with object matchers', () => {
+    it.each`
+      a                                                                   | b                                         | result   | description
+      ${any.object.containing({ id: 'first' })}                           | ${{ id: 'first', name: 'Thor', age: 30 }} | ${true}  | ${'object.containing matches with extra properties'}
+      ${any.object.containing({ id: 'first' })}                           | ${{ name: 'Thor' }}                       | ${false} | ${'object.containing fails when property missing'}
+      ${any.object.containing({ id: 'first' })}                           | ${{ id: 'second', name: 'Thor' }}         | ${false} | ${'object.containing fails when value differs'}
+      ${any.object.containing({ id: any.string(), value: any.number() })} | ${{ id: 'abc', value: 10, extra: true }}  | ${true}  | ${'object.containing supports nested matchers'}
+      ${any.object.containing({ id: any.string(), value: any.number() })} | ${{ id: 'abc', value: '', extra: true }}  | ${false} | ${'object.containing nested matcher fails'}
+      ${any.object.containing({ id: 'first' })}                           | ${'string'}                               | ${false} | ${'object.containing does not match string'}
+      ${any.object.containing({ id: 'first' })}                           | ${null}                                   | ${false} | ${'object.containing does not match null'}
+      ${any.object.containing({ id: 'first' })}                           | ${undefined}                              | ${false} | ${'object.containing does not match undefined'}
+      ${any.object.containing({ id: 'first' })}                           | ${42}                                     | ${false} | ${'object.containing does not match number'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 
-  describe('any.array sub-matchers', () => {
-    describe('any.array.containing', () => {
-      it('should match array containing all expected elements', () => {
-        expect(equal(any.array.containing([1, 2]), [1, 2, 3])).toBe(true)
-      })
-
-      it('should match regardless of order', () => {
-        expect(equal(any.array.containing([3, 1]), [1, 2, 3])).toBe(true)
-      })
-
-      it('should not match when element is missing', () => {
-        expect(equal(any.array.containing([1, 4]), [1, 2, 3])).toBe(false)
-      })
-
-      it('should support nested matchers', () => {
-        expect(equal(any.array.containing([any.number.greaterThan(5)]), [1, 2, 10])).toBe(true)
-        expect(equal(any.array.containing([any.number.greaterThan(5)]), [1, 2, 3])).toBe(false)
-      })
-
-      it('should not match non-arrays', () => {
-        expect(equal(any.array.containing([1]), 'string')).toBe(false)
-        expect(equal(any.array.containing([1]), null)).toBe(false)
-      })
-    })
-
-    describe('any.array.ofLength', () => {
-      it('should match array of exact length', () => {
-        expect(equal(any.array.ofLength(3), [1, 2, 3])).toBe(true)
-      })
-
-      it('should not match array of different length', () => {
-        expect(equal(any.array.ofLength(3), [1, 2])).toBe(false)
-        expect(equal(any.array.ofLength(3), [1, 2, 3, 4])).toBe(false)
-      })
-
-      it('should not match non-arrays', () => {
-        expect(equal(any.array.ofLength(0), '')).toBe(false)
-      })
-    })
-
-    describe('any.array.containingExactly', () => {
-      it('should match same elements in different order', () => {
-        expect(equal(any.array.containingExactly([3, 1, 2]), [1, 2, 3])).toBe(true)
-      })
-
-      it('should match same elements in same order', () => {
-        expect(equal(any.array.containingExactly([1, 2, 3]), [1, 2, 3])).toBe(true)
-      })
-
-      it('should not match when extra elements exist', () => {
-        expect(equal(any.array.containingExactly([1, 2]), [1, 2, 3])).toBe(false)
-      })
-
-      it('should not match when elements are missing', () => {
-        expect(equal(any.array.containingExactly([1, 2, 3]), [1, 2])).toBe(false)
-      })
-
-      it('should not match when element values differ', () => {
-        expect(equal(any.array.containingExactly([1, 2, 4]), [1, 2, 3])).toBe(false)
-      })
-
-      it('should support nested matchers', () => {
-        expect(equal(any.array.containingExactly([any.string(), 1]), [1, 'hello'])).toBe(true)
-      })
-
-      it('should not match non-arrays', () => {
-        expect(equal(any.array.containingExactly([1]), 'string')).toBe(false)
-      })
-    })
+  describe('any with array matchers', () => {
+    it.each`
+      a                                                 | b               | result   | description
+      ${any.array.containing([1, 2])}                   | ${[1, 2, 3]}    | ${true}  | ${'array.containing matches with extra elements'}
+      ${any.array.containing([3, 1])}                   | ${[1, 2, 3]}    | ${true}  | ${'array.containing matches regardless of order'}
+      ${any.array.containing([1, 4])}                   | ${[1, 2, 3]}    | ${false} | ${'array.containing fails when element missing'}
+      ${any.array.containing([any.string()])}           | ${[1, 2, '10']} | ${true}  | ${'array.containing supports nested matchers'}
+      ${any.array.containing([any.string()])}           | ${[1, 2, 3]}    | ${false} | ${'array.containing nested matcher fails'}
+      ${any.array.containing([1])}                      | ${'string'}     | ${false} | ${'array.containing does not match string'}
+      ${any.array.containing([1])}                      | ${null}         | ${false} | ${'array.containing does not match null'}
+      ${any.array.ofLength(3)}                          | ${[1, 2, 3]}    | ${true}  | ${'array.ofLength matches exact length'}
+      ${any.array.ofLength(3)}                          | ${[1, 2]}       | ${false} | ${'array.ofLength fails when shorter'}
+      ${any.array.ofLength(3)}                          | ${[1, 2, 3, 4]} | ${false} | ${'array.ofLength fails when longer'}
+      ${any.array.ofLength(0)}                          | ${''}           | ${false} | ${'array.ofLength does not match string'}
+      ${any.array.containingExactly([3, 1, 2])}         | ${[1, 2, 3]}    | ${true}  | ${'array.containingExactly matches different order'}
+      ${any.array.containingExactly([1, 2, 3])}         | ${[1, 2, 3]}    | ${true}  | ${'array.containingExactly matches same order'}
+      ${any.array.containingExactly([1, 2])}            | ${[1, 2, 3]}    | ${false} | ${'array.containingExactly fails with extra elements'}
+      ${any.array.containingExactly([1, 2, 3])}         | ${[1, 2]}       | ${false} | ${'array.containingExactly fails with missing elements'}
+      ${any.array.containingExactly([1, 2, 4])}         | ${[1, 2, 3]}    | ${false} | ${'array.containingExactly fails when values differ'}
+      ${any.array.containingExactly([any.string(), 1])} | ${[1, 'hello']} | ${true}  | ${'array.containingExactly supports nested matchers'}
+      ${any.array.containingExactly([1])}               | ${'string'}     | ${false} | ${'array.containingExactly does not match string'}
+    `(`$description`, async ({ a, b, result }) => expect(equal(a, b)).toBe(result))
   })
 })
 
